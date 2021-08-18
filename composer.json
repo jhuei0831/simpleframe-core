@@ -6,11 +6,6 @@
             "Kerwin\\Core\\": "/src"
         }
     },
-    "repositories": [
-        { 
-            "type": "vcs", "url": "https://github.com/jhuei0831/simpleframe-core.git" 
-        }
-    ],
     "license": "MIT",
     "authors": [
         {
@@ -19,9 +14,18 @@
         }
     ],
     "minimum-stability": "dev",
+    "require": {
+        "jhuei0831/simpleframe-core": "dev-master"
+    },
     "require-dev": {
         "vlucas/phpdotenv": "^5.3",
         "phpmailer/phpmailer": "^6.4",
         "ramsey/uuid": "^4.1"
-    }
+    },
+    "repositories": [
+        { 
+            "type": "vcs", 
+            "url": "git@github.com:jhuei0831/simpleframe-core.git" 
+        }
+    ]
 }
