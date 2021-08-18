@@ -1,0 +1,22 @@
+{
+    "name": "kerwin/core",
+    "description": "simple frame core",
+    "autoload": {
+        "psr-4": {
+            "Kerwin\\Core\\": "/src"
+        }
+    },
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Jhuei",
+            "email": "jhuei0831@gmail.com"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require-dev": {
+        "vlucas/phpdotenv": "^5.3",
+        "phpmailer/phpmailer": "^6.4",
+        "ramsey/uuid": "^4.1"
+    }
+}
