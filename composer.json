@@ -15,9 +15,6 @@
     ],
     "minimum-stability": "dev",
     "require": {
-        "jhuei0831/simpleframe-core": "dev-master"
-    },
-    "require-dev": {
         "vlucas/phpdotenv": "^5.3",
         "phpmailer/phpmailer": "^6.4",
         "ramsey/uuid": "^4.1"
