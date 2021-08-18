@@ -6,6 +6,11 @@
             "Kerwin\\Core\\": "/src"
         }
     },
+    "repositories": [
+        { 
+            "type": "vcs", "url": "https://github.com/jhuei0831/simpleframe-core.git" 
+        }
+    ],
     "license": "MIT",
     "authors": [
         {
