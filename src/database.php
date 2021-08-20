@@ -4,8 +4,8 @@
 	use PDO;
 	use Exception;
 
-	use kerwin\core\Config;
-	use kerwin\core\Security;
+	use Kerwin\Core\Config;
+	use Kerwin\Core\Security;
 
 	class Database
 	{

@@ -1,7 +1,7 @@
 <?php
     namespace Kerwin\Core;
 
-    use kerwin\core\Database;
+    use Kerwin\Core\Database;
     
     class Role 
     {        

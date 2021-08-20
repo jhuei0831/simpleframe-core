@@ -1,9 +1,9 @@
 <?php
     namespace Kerwin\Core;
 
-    use kerwin\core\Config;
-    use kerwin\core\Database as DB;
-    use kerwin\core\Message as MG;
+    use Kerwin\Core\Config;
+    use Kerwin\Core\Database as DB;
+    use Kerwin\Core\Message as MG;
 
     class Auth
     {     

@@ -2,7 +2,7 @@
     namespace Kerwin\Core;
 
     use Exception;
-    use kerwin\core\Config;
+    use Kerwin\Core\Config;
 
     class Security
     {        
