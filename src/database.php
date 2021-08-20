@@ -24,7 +24,7 @@
 		private static $config;
 
         public function __construct() {
-            $this->config = new Config();
+            static::$config = new Config();
         }
 
 	    /**
