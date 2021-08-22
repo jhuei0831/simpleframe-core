@@ -91,10 +91,10 @@
          */
         public function is_debug(): string
         {
-            if (!isset($_ENV['IS_DEBUG'])) {
-                throw new Exception("Please defined IS_DEBUG in .env", 1);
+            if (!isset($_ENV['APP_DEBUG'])) {
+                throw new Exception("Please defined APP_DEBUG in .env", 1);
             }
-            $debug = isset($_ENV["IS_DEBUG"]) ? $_ENV["IS_DEBUG"] : "FALSE";
+            $debug = isset($_ENV["APP_DEBUG"]) ? $_ENV["APP_DEBUG"] : "FALSE";
             return $debug;
         }
     }

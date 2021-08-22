@@ -6,6 +6,7 @@
 
 	use Kerwin\Core\Config;
 	use Kerwin\Core\Security;
+	use Kerwin\Core\Toolbox;
 
 	class Database
 	{
@@ -87,10 +88,19 @@
 		 *
 		 * @return boolean
 		 */
-		public static function CreateOrUpdate($data)
+		public static function CreateOrUpdate($data, $csrf=true)
 		{
 			try{
-				return self::query_replace($data);
+				if (Toolbox::array_depth($data) > 1) {
+					foreach ($data as $value) {
+						self::query_replace($value, $csrf);
+					}
+				}
+				else {
+					self::query_replace($data, $csrf);
+				}
+				unset($_SESSION["token"]);
+				return true;
 			}
 			catch(Exception $e) {
 				if (self::$config->is_debug() === 'TRUE') {
@@ -204,12 +214,14 @@
 		 * insert
 		 *
 		 * @param  array $data
+		 * @param  bool $getInsertId
+		 * @param  bool $csrf
 		 * @return iterable|object
 		 */
-		public static function insert($data, $getInsertId = false)
+		public static function insert($data, $getInsertId = false, $csrf=true)
 		{
 			try{
-				return self::query_insert($data, $getInsertId);
+				return self::query_insert($data, $getInsertId, $csrf);
 			}
 			catch(Exception $e) {
 				if (self::$config->is_debug() === 'TRUE') {
@@ -295,10 +307,11 @@
 		 * 產生query並執行新增的動作
 		 *
 		 * @param  array $data
-		 * @param  mixed $getInsertId
+		 * @param  bool $getInsertId
+		 * @param  bool $csrf
 		 * @return iterable|object
 		 */		
-		private static function query_insert($data, $getInsertId = false)
+		private static function query_insert($data, $getInsertId = false, $csrf=true)
 		{
 			// 輸入只能是array型態
 			if (!is_array($data)) {
@@ -306,8 +319,9 @@
 			}
 
 			// CSRF驗證
-			if (Security::check_csrf($data)) {
+			if ($csrf && Security::check_csrf($data)) {
 				unset($data['token']);
+				unset($_SESSION["token"]);
 			}
 
 			$column = '';
@@ -333,9 +347,7 @@
 				$attr = $key;
 				$sth->bindValue(':'.$attr, $value);	
 			}
-			
-			unset($_SESSION["token"]);
-			
+						
 			if ($getInsertId) {
 				$sth->execute();
 				return $db->lastInsertId();
@@ -349,9 +361,10 @@
 		 * 產生query並執行更新或新增的動作
 		 *
 		 * @param  array $data
+		 * @param  bool $csrf
 		 * @return iterable|object
 		 */
-		private static function query_replace($data)
+		private static function query_replace($data, $csrf=true)
 		{
 			// 輸入只能是array型態
 			if (!is_array($data)) {
@@ -359,8 +372,9 @@
 			}
 
 			// CSRF驗證
-			if (Security::check_csrf($data)) {
+			if ($csrf && Security::check_csrf($data)) {
 				unset($data['token']);
+				unset($_SESSION["token"]);
 			}
 
 			$column = '';
@@ -385,7 +399,6 @@
 				$attr = $key;
 				$sth->bindValue(':'.$attr, $value);	
 			}
-			unset($_SESSION["token"]);
 			return $sth->execute();
 		}
 				
@@ -461,9 +474,10 @@
 		 * 產生query並執行更新的動作
 		 *
 		 * @param  array $data
+		 * @param  bool $csrf
 		 * @return iterable|object
 		 */
-		private static function query_update($data)
+		private static function query_update($data, $csrf=true)
 		{
 			// 輸入只能是array型態
 			if (!is_array($data)) {
@@ -471,8 +485,9 @@
 			}
 
 			// CSRF驗證
-			if (Security::check_csrf($data)) {
+			if ($csrf && Security::check_csrf($data)) {
 				unset($data['token']);
+				unset($_SESSION["token"]);
 			}
 
 			// 更新必須要有WHERE條件
@@ -496,7 +511,6 @@
 				$attr = $key;
 				$sth->bindValue(':'.$attr, $value);	
 			}
-			unset($_SESSION["token"]);
 			return $sth->execute();
 		}
 		
@@ -546,10 +560,10 @@
 		 * @param  array $data
 		 * @return void
 		 */
-		public static function update($data)
+		public static function update($data, $csrf=true)
 		{
 			try{
-				return self::query_update($data);
+				return self::query_update($data, $csrf);
 			}
 			catch(Exception $e) {
 				if (self::$config->is_debug() === 'TRUE') {

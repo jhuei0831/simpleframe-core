@@ -42,6 +42,27 @@
             echo '</ol>
             </nav>';
         }
+        
+        /**
+         * 陣列深度
+         *
+         * @param  array $array
+         * @return int
+         */
+        public static function array_depth(array $array): int
+        {
+            $maxDepth = 1;
+            foreach ($array as $value) {
+                if (is_array($value)) {
+                    $depth = self::array_depth($value) + 1;
+
+                    if ($depth > $maxDepth) {
+                        $maxDepth = $depth;
+                    }
+                }
+            }
+            return $maxDepth;
+        }
                 
         /**
          * 移除陣列中不要的鍵值
