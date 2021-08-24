@@ -6,12 +6,6 @@
 
     class Security
     {        
-        private static $config;
-
-        public function __construct() {
-            $this->config = new Config();
-        }
-
         /**
          * check_csrf 防止跨站請求偽造 (Cross-site request forgery)
          *
@@ -21,14 +15,14 @@
         public static function check_csrf($data)
         {
             if (empty($data['token'])) {
-                if (self::$config->is_debug() === 'TRUE') {
+                if (Config::is_debug() === 'TRUE') {
                     throw new Exception('請進行CSRF驗證');
                 }
                 return false;
             }
-            elseif($data['token'] != self::$config->csrf_token())
+            elseif($data['token'] != Config::csrf_token())
             {
-                if (self::$config->is_debug() === 'TRUE') {
+                if (Config::is_debug() === 'TRUE') {
                     throw new Exception('禁止跨域請求');
                 }
                 return false;

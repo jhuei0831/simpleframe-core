@@ -72,7 +72,7 @@
          *
          * @return string
          */
-        public function csrf_token(): string
+        public static function csrf_token(): string
         {
             if (session_status() === PHP_SESSION_NONE) {
                 session_start();
@@ -89,7 +89,7 @@
          *
          * @return void
          */
-        public function is_debug(): string
+        public static function is_debug(): string
         {
             if (!isset($_ENV['APP_DEBUG'])) {
                 throw new Exception("Please defined APP_DEBUG in .env", 1);
