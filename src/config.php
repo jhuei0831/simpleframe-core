@@ -13,7 +13,7 @@
          */
         public function app_address(): string
         {
-            $address = $this->app_portocol()."://".$this->app_domain()."/".$this->app_folder().$this->app_name()."/";
+            $address = $this->app_portocol()."://".$this->app_domain()."/".$this->app_folder()."/";
             return $address;
         }
         

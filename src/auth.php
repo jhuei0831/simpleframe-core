@@ -9,10 +9,6 @@
     {     
         private static $config;
 
-        public function __construct() {
-            $this->config = new Config();
-        }
-
         /**
          * 已登入的使用者ID
          *
@@ -32,6 +28,8 @@
          */
         public static function password_reset($root='../../')
         {
+            self::$config = new Config();
+
             // 禁止已登入或連結錯誤訪問
             if (!is_null($_SESSION['USER_ID']) && empty($_GET['auth']) && empty($_GET['id'])) {
                 include_once($root.'_error/404.php');

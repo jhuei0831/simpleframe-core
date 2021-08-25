@@ -39,7 +39,7 @@
          * 是否有這個權限
          *
          * @param  string $permission
-         * @return void
+         * @return bool
          */
         public static function can($permission)
         {

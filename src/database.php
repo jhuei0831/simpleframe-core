@@ -21,12 +21,6 @@
 		private static $leftJoin_condition;
 		private static $join_table;
 		private static $join_condition;
-		
-		private static $config;
-
-        public function __construct() {
-            static::$config = new Config();
-        }
 
 	    /**
 	     * 與資料庫進行連線
@@ -103,7 +97,7 @@
 				return true;
 			}
 			catch(Exception $e) {
-				if (self::$config->is_debug() === 'TRUE') {
+				if (Config::is_debug() === 'TRUE') {
 					throw $e;
 				}
 				else{
@@ -135,7 +129,7 @@
 				return self::query_delete();
 			}
 			catch(Exception $e) {
-				if (self::$config->is_debug() === 'TRUE') {
+				if (Config::is_debug() === 'TRUE') {
 					throw $e;
 				}
 				else{
@@ -224,7 +218,7 @@
 				return self::query_insert($data, $getInsertId, $csrf);
 			}
 			catch(Exception $e) {
-				if (self::$config->is_debug() === 'TRUE') {
+				if (Config::is_debug() === 'TRUE') {
 					throw $e;
 				}
 				else{
@@ -566,7 +560,7 @@
 				return self::query_update($data, $csrf);
 			}
 			catch(Exception $e) {
-				if (self::$config->is_debug() === 'TRUE') {
+				if (Config::is_debug() === 'TRUE') {
 					throw $e;
 				}
 				else{
