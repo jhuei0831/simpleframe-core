@@ -49,12 +49,12 @@
          * @param  array $array
          * @return int
          */
-        public static function array_depth(array $array): int
+        public static function arrayDepth(array $array): int
         {
             $maxDepth = 1;
             foreach ($array as $value) {
                 if (is_array($value)) {
-                    $depth = self::array_depth($value) + 1;
+                    $depth = self::arrayDepth($value) + 1;
 
                     if ($depth > $maxDepth) {
                         $maxDepth = $depth;

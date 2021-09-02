@@ -23,7 +23,7 @@
          * @param  string $permission_name
          * @return array
          */
-        public static function permission_belong_roles($permission_name)
+        public static function permissionBelongRoles($permission_name)
         {
             $roles = Database::table('roles')
                 ->select('roles.id', 'roles.name')
@@ -43,7 +43,7 @@
          */
         public static function can($permission)
         {
-            $roles = self::permission_belong_roles($permission);
+            $roles = self::permissionBelongRoles($permission);
             if (empty($roles) || empty($_SESSION['USER_ID'])) {
                 return false;
             }

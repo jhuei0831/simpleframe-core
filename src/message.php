@@ -35,7 +35,7 @@
          * @param  string $msg
          * @return void
          */
-        public static function show_console($msg)
+        public static function showConsole($msg)
         {
             echo '<meta http-equiv="Content-Type" content="text/html; charset=utf-8">';
             echo '<script>console.log("'.$msg.'");</script>';
@@ -46,10 +46,10 @@
          *
          * @return void
          */
-        public static function show_flash()
+        public static function showFlash()
         {
             if (isset($_SESSION['flash_message']) && $_SESSION['flash_message'] != '') {
-                self::show_swal($_SESSION['flash_message'], $_SESSION['flash_message_type']);
+                self::showSwal($_SESSION['flash_message'], $_SESSION['flash_message_type']);
                 unset($_SESSION['flash_message']);
                 unset($_SESSION['flash_message_type']);
             }
@@ -61,7 +61,7 @@
          * @param  string $msg
          * @return void
          */
-        public static function show_message($msg)
+        public static function showMessage($msg)
         {
             echo '<meta http-equiv="Content-Type" content="text/html; charset=utf-8">';
             echo '<script>alert("'.$msg.'");</script>';
@@ -75,7 +75,7 @@
          * @param  mixed $type
          * @return void
          */
-        public static function show_swal($msg, $type = 'success')
+        public static function showSwal($msg, $type = 'success')
         {
             // echo '<meta http-equiv="Content-Type" content="text/html; charset=utf-8">';
             echo '<script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>';

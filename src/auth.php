@@ -2,8 +2,8 @@
     namespace Kerwin\Core;
 
     use Kerwin\Core\Config;
-    use Kerwin\Core\Database as DB;
-    use Kerwin\Core\Message as MG;
+    use Kerwin\Core\Database;
+    use Kerwin\Core\Message;
 
     class Auth
     {     
@@ -16,7 +16,7 @@
          */
         public static function id()
         {
-            $user = DB::table($_ENV['AUTH_TABLE'])->select('id')->where("id = '{$_SESSION['USER_ID']}'")->first();
+            $user = Database::table($_ENV['AUTH_TABLE'])->select('id')->where("id = '{$_SESSION['USER_ID']}'")->first();
             return isset($user->id) ? $user->id : false;
         }
         
@@ -26,7 +26,7 @@
          * @param  mixed $root 路徑
          * @return void
          */
-        public static function password_reset($root='../../')
+        public static function passwordReset($root='../../')
         {
             self::$config = new Config();
 
@@ -37,19 +37,19 @@
             }
 
             // 確認連結資料正確性
-            $password_resets = DB::table('password_resets')->where("id='{$_GET['id']}' and email_token='{$_GET['auth']}'")->first();
+            $password_resets = Database::table('password_resets')->where("id='{$_GET['id']}' and email_token='{$_GET['auth']}'")->first();
             
             if (empty($password_resets)) {
-                MG::flash('連結有問題，請確認或重新申請密碼重設信件，謝謝', 'warning');
-                MG::redirect(self::$config->app_address().'auth/password/password_forgot.php');
+                Message::flash('連結有問題，請確認或重新申請密碼重設信件，謝謝', 'warning');
+                Message::redirect(self::$config->getAppAddress().'auth/password/password_forgot.php');
             }
             elseif (strtotime('now') > strtotime($password_resets->token_updated_at.' +30 minutes')) {
-                MG::flash('密碼重設信已逾期，請重新獲取，謝謝。', 'warning');
-                MG::redirect(self::$config->app_address().'auth/password/password_forgot.php');
+                Message::flash('密碼重設信已逾期，請重新獲取，謝謝。', 'warning');
+                Message::redirect(self::$config->getAppAddress().'auth/password/password_forgot.php');
             }
             elseif (strtotime('now') < strtotime($password_resets->password_updated_at.' +1 days')) {
-                MG::flash('密碼更新時間小於一天，'.date('Y-m-d H:i:s', strtotime($password_resets->password_updated_at.' +1 days')).'後才可以再次更改。', 'warning');
-                MG::redirect(self::$config->app_address());
+                Message::flash('密碼更新時間小於一天，'.date('Y-m-d H:i:s', strtotime($password_resets->password_updated_at.' +1 days')).'後才可以再次更改。', 'warning');
+                Message::redirect(self::$config->getAppAddress());
             }
             else {
                 return true;
@@ -63,7 +63,7 @@
          */
          public static function user()
          {
-            $user = DB::table($_ENV['AUTH_TABLE'])->select('id', 'name', 'email', 'auth_code', 'email_varified_at', 'role', 'updated_at')->where("id = '{$_SESSION['USER_ID']}'")->first();
+            $user = Database::table($_ENV['AUTH_TABLE'])->select('id', 'name', 'email', 'auth_code', 'email_varified_at', 'role', 'updated_at')->where("id = '{$_SESSION['USER_ID']}'")->first();
             return isset($user) ? $user : false;
          }   
     }

@@ -48,7 +48,6 @@
             if (!isset($_ENV['AUTH_TABLE'])) {
                 throw new Exception("Please defined AUTH_TABLE in .env", 1);
             }
-            // var_dump($role_id);exit;
             $check = Database::table($_ENV['AUTH_TABLE'])->where('id ="'.$_SESSION['USER_ID'].'" and role ="'.$role_id.'"')->count();
             return $check > 0 ? true : false;
         }

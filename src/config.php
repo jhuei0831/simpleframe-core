@@ -11,9 +11,9 @@
          *
          * @return string
          */
-        public function app_address(): string
+        public function getAppAddress(): string
         {
-            $address = $this->app_portocol()."://".$this->app_domain()."/".$this->app_folder()."/";
+            $address = $this->getAppPortocol()."://".$this->getAppDomain()."/".$this->getAppFolder()."/";
             return $address;
         }
         
@@ -22,7 +22,7 @@
          *
          * @return string
          */
-        protected function app_domain(): string
+        protected function getAppDomain(): string
         {
             $domain = isset($_SERVER["HTTP_HOST"]) ? $_SERVER["HTTP_HOST"] : "localhost";
             return $domain;
@@ -33,7 +33,7 @@
          *
          * @return string
          */
-        protected function app_folder(): string
+        protected function getAppFolder(): string
         {
             if (!isset($_ENV['APP_FOLDER'])) {
                 throw new Exception("Please defined APP_FOLDER in .env", 1);
@@ -47,7 +47,7 @@
          *
          * @return string
          */
-        protected function app_name(): string
+        protected function getAppName(): string
         {
             if (!isset($_ENV['APP_NAME'])) {
                 throw new Exception("Please defined APP_NAME in .env", 1);
@@ -61,7 +61,7 @@
          *
          * @return string
          */
-        protected function app_portocol(): string
+        protected function getAppPortocol(): string
         {
             $portocol = isset($_SERVER["REQUEST_SCHEME"]) ? $_SERVER["REQUEST_SCHEME"] : "http";
             return $portocol;
@@ -72,7 +72,7 @@
          *
          * @return string
          */
-        public static function csrf_token(): string
+        public static function csrfToken(): string
         {
             if (session_status() === PHP_SESSION_NONE) {
                 session_start();
@@ -89,7 +89,7 @@
          *
          * @return void
          */
-        public static function is_debug(): string
+        public static function isDebug(): string
         {
             if (!isset($_ENV['APP_DEBUG'])) {
                 throw new Exception("Please defined APP_DEBUG in .env", 1);

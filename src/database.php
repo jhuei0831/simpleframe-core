@@ -7,20 +7,21 @@
 	use Kerwin\Core\Config;
 	use Kerwin\Core\Security;
 	use Kerwin\Core\Toolbox;
+	use Kerwin\Core\Contracts\Database\Query;
 
-	class Database
+	class Database implements Query
 	{
 		private static $database;
-		private static $select = array();
+		private static $select;
 		private static $table;
 		private static $where;
 		private static $limit;
 		private static $query;
-		private static $order_by;
-		private static $leftJoin_table;
-		private static $leftJoin_condition;
-		private static $join_table;
-		private static $join_condition;
+		private static $orderBy;
+		private static $leftJoinTable;
+		private static $leftJoinCondition;
+		private static $joinTable;
+		private static $joinCondition;
 
 	    /**
 	     * 與資料庫進行連線
@@ -70,7 +71,7 @@
 		 * 取得資料的總數
 		 *
 		 * @param  string $db
-		 * @return object
+		 * @return int
 		 */
 		public static function count()
 		{
@@ -85,19 +86,19 @@
 		public static function CreateOrUpdate($data, $csrf=true)
 		{
 			try{
-				if (Toolbox::array_depth($data) > 1) {
+				if (Toolbox::arrayDepth($data) > 1) {
 					foreach ($data as $value) {
-						self::query_replace($value, $csrf);
+						self::queryReplace($value, $csrf);
 					}
 				}
 				else {
-					self::query_replace($data, $csrf);
+					self::queryReplace($data, $csrf);
 				}
 				unset($_SESSION["token"]);
 				return true;
 			}
 			catch(Exception $e) {
-				if (Config::is_debug() === 'TRUE') {
+				if (Config::isDebug() === 'TRUE') {
 					throw $e;
 				}
 				else{
@@ -126,10 +127,10 @@
 		public static function delete()
 		{
 			try{
-				return self::query_delete();
+				return self::queryDelete();
 			}
 			catch(Exception $e) {
-				if (Config::is_debug() === 'TRUE') {
+				if (Config::isDebug() === 'TRUE') {
 					throw $e;
 				}
 				else{
@@ -142,8 +143,8 @@
 		 * 使用fetch找特定id資料
 		 *
 		 * @param  string $id
-		 * @param  mixed $filter 是否過濾
-		 * @return array
+		 * @param  boolean $filter 是否過濾
+		 * @return object
 		 */
 		public static function find($id, $filter=true)
 		{
@@ -153,8 +154,8 @@
 		/**
 		 * 使用fetch找特定query資料
 		 *
-		 * @param  mixed $filter 是否過濾
-		 * @return array
+		 * @param  boolean $filter 是否過濾
+		 * @return object
 		 */
 		public static function first($filter=true)
 		{
@@ -164,8 +165,8 @@
 		/**
 		 * 使用fetchAll取得資料
 		 *
-		 * @param  mixed $filter 是否過濾
-		 * @return array
+		 * @param  boolean $filter 是否過濾
+		 * @return object
 		 */
 		public static function get($filter=true)
 		{
@@ -175,50 +176,50 @@
 		/**
 		 * PDO取全部的值
 		 *
-		 * @param  mixed $filter 是否過濾
-		 * @return array
+		 * @param  boolean $filter 是否過濾
+		 * @return object
 		 */
 		private static function getAll($filter=true)
 		{
-			self::query_select();
+			self::querySelect();
 			$db = self::connection();
 			$sth = $db->prepare(static::$query);
 			$sth->execute();
 			self::Reset();
-			return !$filter ? $sth->fetchAll(PDO::FETCH_OBJ) : Security::defend_filter($sth->fetchAll(PDO::FETCH_OBJ));
+			return !$filter ? $sth->fetchAll(PDO::FETCH_OBJ) : Security::defendFilter($sth->fetchAll(PDO::FETCH_OBJ));
 		}
 	
 		/**
 		 * PDO取單一筆的值
 		 *
-		 * @param  mixed $filter 是否過濾
-		 * @return void
+		 * @param  boolean $filter 是否過濾
+		 * @return object
 		 */		
 		private static function getOne($filter=true)
 		{
-			self::query_select();
+			self::querySelect();
 			$db = self::connection();
 			$sth = $db->prepare(static::$query);
 			$sth->execute();
 			self::Reset();
-			return !$filter ? $sth->fetch(PDO::FETCH_OBJ) : Security::defend_filter($sth->fetch(PDO::FETCH_OBJ));
+			return !$filter ? $sth->fetch(PDO::FETCH_OBJ) : Security::defendFilter($sth->fetch(PDO::FETCH_OBJ));
 		}
 
 		/**
-		 * insert
+		 * 資料庫中插入一筆新的資料
 		 *
 		 * @param  array $data
-		 * @param  bool $getInsertId
-		 * @param  bool $csrf
+		 * @param  boolean $getInsertId
+		 * @param  boolean $csrf
 		 * @return iterable|object
 		 */
 		public static function insert($data, $getInsertId = false, $csrf=true)
 		{
 			try{
-				return self::query_insert($data, $getInsertId, $csrf);
+				return self::queryInsert($data, $getInsertId, $csrf);
 			}
 			catch(Exception $e) {
-				if (Config::is_debug() === 'TRUE') {
+				if (Config::isDebug() === 'TRUE') {
 					throw $e;
 				}
 				else{
@@ -236,8 +237,8 @@
 		 */
 		public static function Join($table, $condition)
 		{
-			static::$join_table[] = func_get_args()[0];
-			static::$join_condition[] = func_get_args()[1];
+			static::$joinTable[] = func_get_args()[0];
+			static::$joinCondition[] = func_get_args()[1];
 			return new static;
 		}
 		
@@ -250,8 +251,8 @@
 		 */
 		public static function leftJoin($table, $condition)
 		{
-			static::$leftJoin_table = $table;
-			static::$leftJoin_condition = $condition;
+			static::$leftJoinTable = $table;
+			static::$leftJoinCondition = $condition;
 			return new static;
 		}
 
@@ -259,7 +260,7 @@
 		 * 指定取出資料的筆數
 		 *
 		 * @param integer $limit 
-		 * @return object
+		 * @return void
 		 */
 		public static function limit() {
 			static::$limit = func_get_args();
@@ -275,7 +276,7 @@
 		 */
 		public static function orderby($orderby)
 		{
-			static::$order_by = (array)$orderby;
+			static::$orderBy = (array)$orderby;
 			return new static;
 		}
 
@@ -285,7 +286,7 @@
 		 * @param  mixed $data
 		 * @return iterable|object
 		 */
-		private static function query_delete()
+		private static function queryDelete()
 		{
 			if (empty(static::$where)) {
 				throw new Exception('Delete比需要有WHERE條件');
@@ -301,11 +302,11 @@
 		 * 產生query並執行新增的動作
 		 *
 		 * @param  array $data
-		 * @param  bool $getInsertId
-		 * @param  bool $csrf
+		 * @param  boolean $getInsertId
+		 * @param  boolean $csrf
 		 * @return iterable|object
 		 */		
-		private static function query_insert($data, $getInsertId = false, $csrf=true)
+		private static function queryInsert($data, $getInsertId = false, $csrf=true)
 		{
 			// 輸入只能是array型態
 			if (!is_array($data)) {
@@ -313,7 +314,7 @@
 			}
 
 			// CSRF驗證
-			if ($csrf && Security::check_csrf($data)) {
+			if ($csrf && Security::checkCSRF($data)) {
 				unset($data['token']);
 				unset($_SESSION["token"]);
 			}
@@ -355,10 +356,10 @@
 		 * 產生query並執行更新或新增的動作
 		 *
 		 * @param  array $data
-		 * @param  bool $csrf
+		 * @param  boolean $csrf
 		 * @return iterable|object
 		 */
-		private static function query_replace($data, $csrf=true)
+		private static function queryReplace($data, $csrf=true)
 		{
 			// 輸入只能是array型態
 			if (!is_array($data)) {
@@ -366,7 +367,7 @@
 			}
 
 			// CSRF驗證
-			if ($csrf && Security::check_csrf($data)) {
+			if ($csrf && Security::checkCSRF($data)) {
 				unset($data['token']);
 				unset($_SESSION["token"]);
 			}
@@ -401,7 +402,7 @@
 		 *
 		 * @return object
 		 */
-		private static function query_select()
+		private static function querySelect()
 		{
 			$query[] = "SELECT";
 			// 如果select空值或*字號，則取全部
@@ -416,20 +417,20 @@
 			$query[] = static::$table;
 			
 			// 處理LeftJoin的條件跟資料表
-			if (!empty(static::$leftJoin_table) && !empty(static::$leftJoin_condition)) {
+			if (!empty(static::$leftJoinTable) && !empty(static::$leftJoinCondition)) {
 				$query[] = "LEFT JOIN";
-				$query[] = static::$leftJoin_table;
+				$query[] = static::$leftJoinTable;
 				$query[] = "ON";
-				$query[] = static::$leftJoin_condition;
+				$query[] = static::$leftJoinCondition;
 			}
 
 			// 處理Join的條件跟資料表
-			if (!empty(static::$join_table) && !empty(static::$join_condition)) {
-				for ($i=0; $i < count(static::$join_table); $i++) { 
+			if (!empty(static::$joinTable) && !empty(static::$joinCondition)) {
+				for ($i=0; $i < count(static::$joinTable); $i++) { 
 					$query[] = "JOIN";
-					$query[] = static::$join_table[$i];
+					$query[] = static::$joinTable[$i];
 					$query[] = "ON";
-					$query[] = static::$join_condition[$i];
+					$query[] = static::$joinCondition[$i];
 				}
 			}
 
@@ -440,14 +441,14 @@
 			}
 
 			// 處理Order By排序
-			if (!empty(static::$order_by)) {
+			if (!empty(static::$orderBy)) {
 				$query[] = "ORDER BY";
-				for ($i=0; $i < count(static::$order_by); $i++) { 
-					if (!is_array(static::$order_by[$i])) {
+				for ($i=0; $i < count(static::$orderBy); $i++) { 
+					if (!is_array(static::$orderBy[$i])) {
 						throw new Exception('OrderBy參數必須是array([column, sort], ....)');
 					}
-					$query[] = join(' ', static::$order_by[$i]);
-					if ($i < count(static::$order_by)-1) {
+					$query[] = join(' ', static::$orderBy[$i]);
+					if ($i < count(static::$orderBy)-1) {
 						$query[] = ', ';
 					}
 				}		
@@ -468,10 +469,10 @@
 		 * 產生query並執行更新的動作
 		 *
 		 * @param  array $data
-		 * @param  bool $csrf
+		 * @param  boolean $csrf
 		 * @return iterable|object
 		 */
-		private static function query_update($data, $csrf=true)
+		private static function queryUpdate($data, $csrf=true)
 		{
 			// 輸入只能是array型態
 			if (!is_array($data)) {
@@ -479,7 +480,7 @@
 			}
 
 			// CSRF驗證
-			if ($csrf && Security::check_csrf($data)) {
+			if ($csrf && Security::checkCSRF($data)) {
 				unset($data['token']);
 				unset($_SESSION["token"]);
 			}
@@ -519,11 +520,11 @@
 			static::$where = '';
 			static::$limit = '';
 			static::$query = '';
-			static::$leftJoin_table = '';
-			static::$leftJoin_condition = '';
-			static::$join_table  = array();
-			static::$join_condition = array();
-			static::$order_by = '';
+			static::$leftJoinTable = '';
+			static::$leftJoinCondition = '';
+			static::$joinTable  = array();
+			static::$joinCondition = array();
+			static::$orderBy = '';
 		}
 
 		/**
@@ -557,10 +558,10 @@
 		public static function update($data, $csrf=true)
 		{
 			try{
-				return self::query_update($data, $csrf);
+				return self::queryUpdate($data, $csrf);
 			}
 			catch(Exception $e) {
-				if (Config::is_debug() === 'TRUE') {
+				if (Config::isDebug() === 'TRUE') {
 					throw $e;
 				}
 				else{
@@ -575,7 +576,8 @@
 		 * @param  string $where
 		 * @return object
 		 */
-		public static function where($where) {
+		public static function where($where) 
+		{
 			static::$where = $where;
 			return new static;
 		}			
