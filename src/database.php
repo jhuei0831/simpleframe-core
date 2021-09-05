@@ -4,9 +4,9 @@
 	use PDO;
 	use Exception;
 
-	use Kerwin\Core\Config;
 	use Kerwin\Core\Security;
-	use Kerwin\Core\Toolbox;
+	use Kerwin\Core\Support\Config;
+	use Kerwin\Core\Support\Toolbox;
 	use Kerwin\Core\Contracts\Database\Query;
 
 	class Database implements Query

@@ -1,9 +1,9 @@
 <?php
     namespace Kerwin\Core;
 
-    use Kerwin\Core\Config;
+    use Kerwin\Core\Support\Config;
     use Kerwin\Core\Database;
-    use Kerwin\Core\Message;
+    use Kerwin\Core\Facades\Message;
 
     class Auth
     {     
@@ -14,7 +14,7 @@
          *
          * @return object
          */
-        public static function id()
+        public function id()
         {
             $user = Database::table($_ENV['AUTH_TABLE'])->select('id')->where("id = '{$_SESSION['USER_ID']}'")->first();
             return isset($user->id) ? $user->id : false;
@@ -37,18 +37,18 @@
             }
 
             // 確認連結資料正確性
-            $password_resets = Database::table('password_resets')->where("id='{$_GET['id']}' and email_token='{$_GET['auth']}'")->first();
+            $passwordResets = Database::table('password_resets')->where("id='{$_GET['id']}' and email_token='{$_GET['auth']}'")->first();
             
-            if (empty($password_resets)) {
+            if (empty($passwordResets)) {
                 Message::flash('連結有問題，請確認或重新申請密碼重設信件，謝謝', 'warning');
                 Message::redirect(self::$config->getAppAddress().'auth/password/password_forgot.php');
             }
-            elseif (strtotime('now') > strtotime($password_resets->token_updated_at.' +30 minutes')) {
+            elseif (strtotime('now') > strtotime($passwordResets->token_updated_at.' +30 minutes')) {
                 Message::flash('密碼重設信已逾期，請重新獲取，謝謝。', 'warning');
                 Message::redirect(self::$config->getAppAddress().'auth/password/password_forgot.php');
             }
-            elseif (strtotime('now') < strtotime($password_resets->password_updated_at.' +1 days')) {
-                Message::flash('密碼更新時間小於一天，'.date('Y-m-d H:i:s', strtotime($password_resets->password_updated_at.' +1 days')).'後才可以再次更改。', 'warning');
+            elseif (strtotime('now') < strtotime($passwordResets->password_updated_at.' +1 days')) {
+                Message::flash('密碼更新時間小於一天，'.date('Y-m-d H:i:s', strtotime($passwordResets->password_updated_at.' +1 days')).'後才可以再次更改。', 'warning');
                 Message::redirect(self::$config->getAppAddress());
             }
             else {
@@ -61,7 +61,7 @@
          *
          * @return object
          */
-         public static function user()
+         public function user()
          {
             $user = Database::table($_ENV['AUTH_TABLE'])->select('id', 'name', 'email', 'auth_code', 'email_varified_at', 'role', 'updated_at')->where("id = '{$_SESSION['USER_ID']}'")->first();
             return isset($user) ? $user : false;

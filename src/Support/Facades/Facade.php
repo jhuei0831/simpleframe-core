@@ -1,5 +1,10 @@
 <?php
 
+
+    namespace Kerwin\Core\Facades;
+
+    use RuntimeException;
+    
     abstract class Facade
     {
         public static function __callStatic($method, $args)

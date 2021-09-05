@@ -1,6 +1,6 @@
 <?php
 
-    namespace Kerwin\Core;
+    namespace Kerwin\Core\Support;
 
     use Ramsey\Uuid\Uuid;
 
