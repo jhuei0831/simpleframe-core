@@ -1,8 +1,8 @@
 <?php
 
-    namespace Kerwin\Core\Facades;
+    namespace Kerwin\Core\Support\Facades;
 
-    use Kerwin\Core\Facades\Facade;
+    use Kerwin\Core\Support\Facades\Facade;
     use Kerwin\Core\Auth as CoreAuth;
 
     class Auth extends Facade

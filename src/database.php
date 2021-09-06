@@ -4,10 +4,10 @@
 	use PDO;
 	use Exception;
 
-	use Kerwin\Core\Security;
+	use Kerwin\Core\Contracts\Database\Query;
 	use Kerwin\Core\Support\Config;
 	use Kerwin\Core\Support\Toolbox;
-	use Kerwin\Core\Contracts\Database\Query;
+	use Kerwin\Core\Support\Facades\Security;
 
 	class Database implements Query
 	{

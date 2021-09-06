@@ -1,13 +1,14 @@
 <?php
+
     namespace Kerwin\Core;
 
-    use Kerwin\Core\Support\Config;
     use Kerwin\Core\Database;
-    use Kerwin\Core\Facades\Message;
+    use Kerwin\Core\Contracts\Auth\User;
+    use Kerwin\Core\Support\Config;
+    use Kerwin\Core\Support\Facades\Message;
 
-    class Auth
+    class Auth implements User
     {     
-        private static $config;
 
         /**
          * 已登入的使用者ID
@@ -26,10 +27,8 @@
          * @param  mixed $root 路徑
          * @return void
          */
-        public static function passwordReset($root='../../')
+        public function passwordReset($root='../../')
         {
-            self::$config = new Config();
-
             // 禁止已登入或連結錯誤訪問
             if (!is_null($_SESSION['USER_ID']) && empty($_GET['auth']) && empty($_GET['id'])) {
                 include_once($root.'_error/404.php');
@@ -41,15 +40,15 @@
             
             if (empty($passwordResets)) {
                 Message::flash('連結有問題，請確認或重新申請密碼重設信件，謝謝', 'warning');
-                Message::redirect(self::$config->getAppAddress().'auth/password/password_forgot.php');
+                Message::redirect(Config::getAppAddress().'auth/password/password_forgot.php');
             }
             elseif (strtotime('now') > strtotime($passwordResets->token_updated_at.' +30 minutes')) {
                 Message::flash('密碼重設信已逾期，請重新獲取，謝謝。', 'warning');
-                Message::redirect(self::$config->getAppAddress().'auth/password/password_forgot.php');
+                Message::redirect(Config::getAppAddress().'auth/password/password_forgot.php');
             }
             elseif (strtotime('now') < strtotime($passwordResets->password_updated_at.' +1 days')) {
                 Message::flash('密碼更新時間小於一天，'.date('Y-m-d H:i:s', strtotime($passwordResets->password_updated_at.' +1 days')).'後才可以再次更改。', 'warning');
-                Message::redirect(self::$config->getAppAddress());
+                Message::redirect(Config::getAppAddress());
             }
             else {
                 return true;

@@ -2,9 +2,11 @@
     namespace Kerwin\Core;
 
     use Exception;
-    use Kerwin\Core\Config;
+    use Kerwin\Core\Support\Config;
+    use Kerwin\Core\Contracts\Security\Filter;
+    use Kerwin\Core\Contracts\Security\Verify;
 
-    class Security
+    class Security implements Filter, Verify
     {        
         /**
          * checkCSRF 防止跨站請求偽造 (Cross-site request forgery)
@@ -12,7 +14,7 @@
          * @param  array $data
          * @return boolean
          */
-        public static function checkCSRF($data)
+        public function checkCSRF($data)
         {
             if (empty($data['token'])) {
                 if (Config::isDebug() === 'TRUE') {
@@ -38,20 +40,20 @@
          * @param  array|string $data
          * @return array|string|object
          */
-        public static function defendFilter($data)
+        public function defendFilter($data)
         {
             if (is_array($data) || is_object($data)) {
-                $origin_type = gettype($data);
+                $originType = gettype($data);
                 $data = (array) $data;
                 foreach ($data as $key => $value) {
                     if (is_array($value) || is_object($value)) {
-                        $data[$key] = self::defendFilter($value);
+                        $data[$key] = $this->defendFilter($value);
                     }
                     else {
                         $data[$key]  = filter_var(addslashes($value), FILTER_SANITIZE_STRING);
                     }
                 }   
-                return $origin_type == 'array' ? $data : (object) $data;
+                return $originType == 'array' ? $data : (object) $data;
             }
             else{
                 $data  = addslashes($data);

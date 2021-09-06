@@ -3,13 +3,13 @@
     namespace Kerwin\Core\Support\Facades;
 
     use Kerwin\Core\Support\Facades\Facade;
-    use Kerwin\Core\Message as CoreMessage;
+    use Kerwin\Core\Permission as CorePermission;
 
-    class Message extends Facade
+    class Permission extends Facade
     {
         protected static function getClass()
         {
-            return new CoreMessage();
+            return new CorePermission();
         }
     }
     

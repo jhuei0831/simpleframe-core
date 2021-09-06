@@ -1,7 +1,7 @@
 <?php
 
 
-    namespace Kerwin\Core\Facades;
+    namespace Kerwin\Core\Support\Facades;
 
     use RuntimeException;
     

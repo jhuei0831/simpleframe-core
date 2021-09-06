@@ -11,9 +11,9 @@
          *
          * @return string
          */
-        public function getAppAddress(): string
+        public static function getAppAddress(): string
         {
-            $address = $this->getAppPortocol()."://".$this->getAppDomain()."/".$this->getAppFolder()."/";
+            $address = self::getAppPortocol()."://".self::getAppDomain()."/".self::getAppFolder()."/";
             return $address;
         }
         
@@ -22,7 +22,7 @@
          *
          * @return string
          */
-        protected function getAppDomain(): string
+        protected static function getAppDomain(): string
         {
             $domain = isset($_SERVER["HTTP_HOST"]) ? $_SERVER["HTTP_HOST"] : "localhost";
             return $domain;
@@ -33,7 +33,7 @@
          *
          * @return string
          */
-        protected function getAppFolder(): string
+        protected static function getAppFolder(): string
         {
             if (!isset($_ENV['APP_FOLDER'])) {
                 throw new Exception("Please defined APP_FOLDER in .env", 1);
@@ -47,7 +47,7 @@
          *
          * @return string
          */
-        protected function getAppName(): string
+        protected static function getAppName(): string
         {
             if (!isset($_ENV['APP_NAME'])) {
                 throw new Exception("Please defined APP_NAME in .env", 1);
@@ -61,7 +61,7 @@
          *
          * @return string
          */
-        protected function getAppPortocol(): string
+        protected static function getAppPortocol(): string
         {
             $portocol = isset($_SERVER["REQUEST_SCHEME"]) ? $_SERVER["REQUEST_SCHEME"] : "http";
             return $portocol;

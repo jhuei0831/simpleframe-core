@@ -7,8 +7,8 @@
         /**
          * 將訊息存在session中
          *
-         * @param  mixed $msg
-         * @param  mixed $type
+         * @param  string $msg
+         * @param string $type
          * @return void
          */
         public function flash($msg, $type)
@@ -49,7 +49,7 @@
         public function showFlash()
         {
             if (isset($_SESSION['flash_message']) && $_SESSION['flash_message'] != '') {
-                self::showSwal($_SESSION['flash_message'], $_SESSION['flash_message_type']);
+                $this->showSwal($_SESSION['flash_message'], $_SESSION['flash_message_type']);
                 unset($_SESSION['flash_message']);
                 unset($_SESSION['flash_message_type']);
             }
@@ -70,14 +70,13 @@
         /**
          * 跳出sweetalert2訊息框
          *
-         * @param  mixed $msg
-         * @param  mixed $title
-         * @param  mixed $type
+         * @param  string $msg
+         * @param  string $title
+         * @param  string $type
          * @return void
          */
         public function showSwal($msg, $type = 'success')
         {
-            // echo '<meta http-equiv="Content-Type" content="text/html; charset=utf-8">';
             echo '<script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>';
             echo "<script>
                 window.onload = function(){

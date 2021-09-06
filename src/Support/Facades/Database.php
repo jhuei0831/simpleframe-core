@@ -1,8 +1,8 @@
 <?php
 
-    namespace Kerwin\Core\Facades;
+    namespace Kerwin\Core\Support\Facades;
 
-    use Kerwin\Core\Facades\Facade;
+    use Kerwin\Core\Support\Facades\Facade;
     use Kerwin\Core\Database as CoreDatabase;
 
     class Database extends Facade
