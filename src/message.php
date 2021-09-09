@@ -15,6 +15,8 @@
         {
             $_SESSION['flash_message'] = $msg;
             $_SESSION['flash_message_type'] = $type;
+            
+            return $this;
         }
 
         /**
