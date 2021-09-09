@@ -79,7 +79,7 @@
          */
         public function showSwal($msg, $type = 'success')
         {
-            echo '<script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>';
+            echo '<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>';
             echo "<script>
                 window.onload = function(){
                     Swal.fire({
