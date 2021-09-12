@@ -8,6 +8,12 @@
 
     class Security implements Filter, Verify
     {        
+        private $config;
+
+        public function __construct() {
+            $this->config = new Config();
+        }
+
         /**
          * checkCSRF 防止跨站請求偽造 (Cross-site request forgery)
          *
@@ -17,14 +23,14 @@
         public function checkCSRF($data)
         {
             if (empty($data['token'])) {
-                if (Config::isDebug() === 'TRUE') {
+                if ($this->config->isDebug() === 'TRUE') {
                     throw new Exception('請進行CSRF驗證');
                 }
                 return false;
             }
-            elseif($data['token'] != Config::csrfToken())
+            elseif($data['token'] != $this->config->csrfToken())
             {
-                if (Config::isDebug() === 'TRUE') {
+                if ($this->config->isDebug() === 'TRUE') {
                     throw new Exception('禁止跨域請求');
                 }
                 return false;

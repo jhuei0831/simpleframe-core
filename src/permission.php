@@ -2,10 +2,22 @@
     namespace Kerwin\Core;
 
     use Kerwin\Core\Database;
+    use Kerwin\Core\Request;
+    use Kerwin\Core\Session;
     use Kerwin\Core\Contracts\Auth\Permission as permissionGuard;
 
     class Permission implements permissionGuard
     {        
+        private $database;
+        private $request;
+        private $session;
+
+        public function __construct() {
+            $this->database = new Database();
+            $this->request = Request::createFromGlobals();
+            $this->session = new Session();
+        }
+        
         /**
          * 建立權限
          *
@@ -15,7 +27,7 @@
         public function create($data)
         {
             $data = (array) $data;
-            return Database::table('permissions')->insert($data);
+            return $this->database->table('permissions')->insert($data);
         }
         
         /**
@@ -26,7 +38,7 @@
          */
         private function permissionBelongRoles($permissionName)
         {
-            $roles = Database::table('roles')
+            $roles = $this->database->table('roles')
                 ->select('roles.id', 'roles.name')
                 ->join('role_has_permissions', 'role_has_permissions.role_id = roles.id')
                 ->join('permissions', 'permissions.id = role_has_permissions.permission_id')
@@ -45,12 +57,12 @@
         public function can($permission)
         {
             $roles = $this->permissionBelongRoles($permission);
-            if (empty($roles) || empty($_SESSION['USER_ID'])) {
+            if (empty($roles) || empty($this->session->get('USER_ID'))) {
                 return false;
             }
             $roleList = array_column($roles, 'id');
             
-            $check = Database::table($_ENV['AUTH_TABLE'])->where('id = "'.$_SESSION['USER_ID'].'" and role in('.join(', ', $roleList).')')->count();
+            $check = $this->database->table($this->request->server->get('AUTH_TABLE'))->where('id = "'.$this->session->get('USER_ID').'" and role in('.join(', ', $roleList).')')->count();
 
             return $check > 0 ? true : false;
         }

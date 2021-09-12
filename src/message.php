@@ -1,9 +1,16 @@
 <?php
     namespace Kerwin\Core;
     
+    use Kerwin\Core\Session;
+    
     class Message
     {
-                
+        private $session;
+
+        public function __construct() {
+            $this->session = new Session();
+        }
+
         /**
          * 將訊息存在session中
          *
@@ -13,8 +20,8 @@
          */
         public function flash($msg, $type)
         {
-            $_SESSION['flash_message'] = $msg;
-            $_SESSION['flash_message_type'] = $type;
+            $this->session->set('flash_message', $msg);
+            $this->session->set('flash_message_type', $type);
             
             return $this;
         }
@@ -50,10 +57,10 @@
          */
         public function showFlash()
         {
-            if (isset($_SESSION['flash_message']) && $_SESSION['flash_message'] != '') {
-                $this->showSwal($_SESSION['flash_message'], $_SESSION['flash_message_type']);
-                unset($_SESSION['flash_message']);
-                unset($_SESSION['flash_message_type']);
+            if ($this->session->has('flash_message') && $this->session->get('flash_message') != '') {
+                $this->showSwal($this->session->get('flash_message'), $this->session->get('flash_message_type'));
+                $this->session->remove('flash_message');
+                $this->session->remove('flash_message_type');
             }
         }
      

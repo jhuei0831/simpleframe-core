@@ -11,28 +11,33 @@
 
 	class Database implements Query
 	{
-		private static $database;
-		private static $select;
-		private static $table;
-		private static $where;
-		private static $limit;
-		private static $query;
-		private static $orderBy;
-		private static $leftJoinTable;
-		private static $leftJoinCondition;
-		private static $joinTable;
-		private static $joinCondition;
+		private $config;
+		private $database;
+		private $select;
+		private $table;
+		private $where;
+		private $limit;
+		private $query;
+		private $orderBy;
+		private $leftJoinTable;
+		private $leftJoinCondition;
+		private $joinTable;
+		private $joinCondition;
+
+		public function __construct() {
+			$this->config = new Config();
+		}
 
 	    /**
 	     * 與資料庫進行連線
 	     *
 	     * @return object
 	     */
-	    public static function connection()
+	    public function connection()
 		{
 			// 資料庫預設值
 			$host     = $_ENV['DB_HOST'];
-			$database = static::$database != null ? static::$database : $_ENV['DB_DATABASE'];
+			$database = $this->database != null ? $this->database : $_ENV['DB_DATABASE'];
 			$account  = $_ENV['DB_USERNAME'];
 			$password = $_ENV['DB_PASSWORD'];
 			$charset  = $_ENV['DB_CHARSET'];
@@ -63,7 +68,7 @@
 			}
 			catch(Exception $ex)
 			{
-				self::connection();
+				$this->connection();
 			}
 		}
 
@@ -73,9 +78,9 @@
 		 * @param  string $db
 		 * @return int
 		 */
-		public static function count()
+		public function count()
 		{
-			return count(self::getAll());
+			return count($this->getAll());
 		}
 
 		/**
@@ -83,22 +88,22 @@
 		 *
 		 * @return boolean
 		 */
-		public static function CreateOrUpdate($data, $csrf=true)
+		public function CreateOrUpdate($data, $csrf=true)
 		{
 			try{
 				if (Toolbox::arrayDepth($data) > 1) {
 					foreach ($data as $value) {
-						self::queryReplace($value, $csrf);
+						$this->queryReplace($value, $csrf);
 					}
 				}
 				else {
-					self::queryReplace($data, $csrf);
+					$this->queryReplace($data, $csrf);
 				}
 				unset($_SESSION["token"]);
 				return true;
 			}
 			catch(Exception $e) {
-				if (Config::isDebug() === 'TRUE') {
+				if ($this->config->isDebug() === 'TRUE') {
 					throw $e;
 				}
 				else{
@@ -113,10 +118,10 @@
 		 * @param  string $db
 		 * @return object
 		 */
-		public static function database($db)
+		public function database($db)
 		{
-			static::$database = $db;
-			return new static;
+			$this->database = $db;
+			return $this;
 		}
 		
 		/**
@@ -124,13 +129,13 @@
 		 *
 		 * @return boolean
 		 */
-		public static function delete()
+		public function delete()
 		{
 			try{
-				return self::queryDelete();
+				return $this->queryDelete();
 			}
 			catch(Exception $e) {
-				if (Config::isDebug() === 'TRUE') {
+				if ($this->config->isDebug() === 'TRUE') {
 					throw $e;
 				}
 				else{
@@ -146,9 +151,9 @@
 		 * @param  boolean $filter 是否過濾
 		 * @return object
 		 */
-		public static function find($id, $filter=true)
+		public function find($id, $filter=true)
 		{
-			return self::where("id = '{$id}'")->getOne($filter);
+			return $this->where("id = '{$id}'")->getOne($filter);
 		}
 
 		/**
@@ -157,9 +162,9 @@
 		 * @param  boolean $filter 是否過濾
 		 * @return object
 		 */
-		public static function first($filter=true)
+		public function first($filter=true)
 		{
-			return self::getOne($filter);
+			return $this->getOne($filter);
 		}
 	
 		/**
@@ -168,9 +173,9 @@
 		 * @param  boolean $filter 是否過濾
 		 * @return object
 		 */
-		public static function get($filter=true)
+		public function get($filter=true)
 		{
-			return self::getAll($filter);
+			return $this->getAll($filter);
 		}
 
 		/**
@@ -179,13 +184,13 @@
 		 * @param  boolean $filter 是否過濾
 		 * @return object
 		 */
-		private static function getAll($filter=true)
+		private function getAll($filter=true)
 		{
-			self::querySelect();
-			$db = self::connection();
-			$sth = $db->prepare(static::$query);
+			$this->querySelect();
+			$db = $this->connection();
+			$sth = $db->prepare($this->query);
 			$sth->execute();
-			self::Reset();
+			$this->Reset();
 			return !$filter ? $sth->fetchAll(PDO::FETCH_OBJ) : Security::defendFilter($sth->fetchAll(PDO::FETCH_OBJ));
 		}
 	
@@ -195,13 +200,13 @@
 		 * @param  boolean $filter 是否過濾
 		 * @return object
 		 */		
-		private static function getOne($filter=true)
+		private function getOne($filter=true)
 		{
-			self::querySelect();
-			$db = self::connection();
-			$sth = $db->prepare(static::$query);
+			$this->querySelect();
+			$db = $this->connection();
+			$sth = $db->prepare($this->query);
 			$sth->execute();
-			self::Reset();
+			$this->Reset();
 			return !$filter ? $sth->fetch(PDO::FETCH_OBJ) : Security::defendFilter($sth->fetch(PDO::FETCH_OBJ));
 		}
 
@@ -213,13 +218,13 @@
 		 * @param  boolean $csrf
 		 * @return iterable|object
 		 */
-		public static function insert($data, $getInsertId = false, $csrf=true)
+		public function insert($data, $getInsertId = false, $csrf=true)
 		{
 			try{
-				return self::queryInsert($data, $getInsertId, $csrf);
+				return $this->queryInsert($data, $getInsertId, $csrf);
 			}
 			catch(Exception $e) {
-				if (Config::isDebug() === 'TRUE') {
+				if ($this->config->isDebug() === 'TRUE') {
 					throw $e;
 				}
 				else{
@@ -235,11 +240,11 @@
 		 * @param  mixed $condition Join的條件
 		 * @return object
 		 */
-		public static function Join($table, $condition)
+		public function Join($table, $condition)
 		{
-			static::$joinTable[] = func_get_args()[0];
-			static::$joinCondition[] = func_get_args()[1];
-			return new static;
+			$this->joinTable[] = func_get_args()[0];
+			$this->joinCondition[] = func_get_args()[1];
+			return $this;
 		}
 		
 		/**
@@ -249,11 +254,11 @@
 		 * @param  mixed $condition Join的條件
 		 * @return object
 		 */
-		public static function leftJoin($table, $condition)
+		public function leftJoin($table, $condition)
 		{
-			static::$leftJoinTable = $table;
-			static::$leftJoinCondition = $condition;
-			return new static;
+			$this->leftJoinTable = $table;
+			$this->leftJoinCondition = $condition;
+			return $this;
 		}
 
 		/**
@@ -262,9 +267,9 @@
 		 * @param integer $limit 
 		 * @return void
 		 */
-		public static function limit() {
-			static::$limit = func_get_args();
-			return new static;
+		public function limit() {
+			$this->limit = func_get_args();
+			return $this;
 		}
 		
 		/**
@@ -274,10 +279,10 @@
 		 * @param  mixed $type
 		 * @return void
 		 */
-		public static function orderby($orderby)
+		public function orderby($orderby)
 		{
-			static::$orderBy = (array)$orderby;
-			return new static;
+			$this->orderBy = (array)$orderby;
+			return $this;
 		}
 
 		/**
@@ -286,14 +291,14 @@
 		 * @param  mixed $data
 		 * @return iterable|object
 		 */
-		private static function queryDelete()
+		private function queryDelete()
 		{
-			if (empty(static::$where)) {
+			if (empty($this->where)) {
 				throw new Exception('Delete比需要有WHERE條件');
 			}
 
-			$db = self::connection();
-			$sql = 'DELETE FROM '.static::$table.' WHERE '.static::$where;
+			$db = $this->connection();
+			$sql = 'DELETE FROM '.$this->table.' WHERE '.$this->where;
 			$sth = $db->prepare($sql);
 			return $sth->execute();
 		}
@@ -306,7 +311,7 @@
 		 * @param  boolean $csrf
 		 * @return iterable|object
 		 */		
-		private static function queryInsert($data, $getInsertId = false, $csrf=true)
+		private function queryInsert($data, $getInsertId = false, $csrf=true)
 		{
 			// 輸入只能是array型態
 			if (!is_array($data)) {
@@ -333,8 +338,8 @@
 			$column = substr($column, 0, -1);
 			$values = substr($values, 0, -1);
 
-			$db = self::connection();
-			$sql = 'INSERT INTO '.static::$table.' ('.$column.') VALUES ('.$values.')';
+			$db = $this->connection();
+			$sql = 'INSERT INTO '.$this->table.' ('.$column.') VALUES ('.$values.')';
 
 			$sth = $db->prepare($sql);
 			foreach ($data as $key => $value) 
@@ -359,7 +364,7 @@
 		 * @param  boolean $csrf
 		 * @return iterable|object
 		 */
-		private static function queryReplace($data, $csrf=true)
+		private function queryReplace($data, $csrf=true)
 		{
 			// 輸入只能是array型態
 			if (!is_array($data)) {
@@ -386,8 +391,8 @@
 			$column = substr($column, 0, -1);
 			$values = substr($values, 0, -1);
 
-			$db = self::connection();
-			$sql = 'REPLACE INTO '.static::$table.' ('.$column.') VALUES ('.$values.')';
+			$db = $this->connection();
+			$sql = 'REPLACE INTO '.$this->table.' ('.$column.') VALUES ('.$values.')';
 			$sth = $db->prepare($sql);
 			foreach ($data as $key => $value) 
 			{
@@ -402,67 +407,67 @@
 		 *
 		 * @return object
 		 */
-		private static function querySelect()
+		private function querySelect()
 		{
 			$query[] = "SELECT";
 			// 如果select空值或*字號，則取全部
-			if (empty(static::$select) || static::$select == '*') {
+			if (empty($this->select) || $this->select == '*') {
 				$query[] = "*";  
 			}
 			else {
-				$query[] = join(', ', static::$select);
+				$query[] = join(', ', $this->select);
 			}
 	
 			$query[] = "FROM";
-			$query[] = static::$table;
+			$query[] = $this->table;
 			
 			// 處理LeftJoin的條件跟資料表
-			if (!empty(static::$leftJoinTable) && !empty(static::$leftJoinCondition)) {
+			if (!empty($this->leftJoinTable) && !empty($this->leftJoinCondition)) {
 				$query[] = "LEFT JOIN";
-				$query[] = static::$leftJoinTable;
+				$query[] = $this->leftJoinTable;
 				$query[] = "ON";
-				$query[] = static::$leftJoinCondition;
+				$query[] = $this->leftJoinCondition;
 			}
 
 			// 處理Join的條件跟資料表
-			if (!empty(static::$joinTable) && !empty(static::$joinCondition)) {
-				for ($i=0; $i < count(static::$joinTable); $i++) { 
+			if (!empty($this->joinTable) && !empty($this->joinCondition)) {
+				for ($i=0; $i < count($this->joinTable); $i++) { 
 					$query[] = "JOIN";
-					$query[] = static::$joinTable[$i];
+					$query[] = $this->joinTable[$i];
 					$query[] = "ON";
-					$query[] = static::$joinCondition[$i];
+					$query[] = $this->joinCondition[$i];
 				}
 			}
 
 			// 處理WHERE的條件
-			if (!empty(static::$where)) {
+			if (!empty($this->where)) {
 				$query[] = "WHERE";
-				$query[] = static::$where;
+				$query[] = $this->where;
 			}
 
 			// 處理Order By排序
-			if (!empty(static::$orderBy)) {
+			if (!empty($this->orderBy)) {
 				$query[] = "ORDER BY";
-				for ($i=0; $i < count(static::$orderBy); $i++) { 
-					if (!is_array(static::$orderBy[$i])) {
+				for ($i=0; $i < count($this->orderBy); $i++) { 
+					if (!is_array($this->orderBy[$i])) {
 						throw new Exception('OrderBy參數必須是array([column, sort], ....)');
 					}
-					$query[] = join(' ', static::$orderBy[$i]);
-					if ($i < count(static::$orderBy)-1) {
+					$query[] = join(' ', $this->orderBy[$i]);
+					if ($i < count($this->orderBy)-1) {
 						$query[] = ', ';
 					}
 				}		
 			}
 
 			// 處理Limit資料數量
-			if (!empty(static::$limit)) {
+			if (!empty($this->limit)) {
 				$query[] = "LIMIT";
-				$query[] = join(', ', static::$limit);;
+				$query[] = join(', ', $this->limit);;
 			}
 			
-			static::$query = join(' ', $query);
+			$this->query = join(' ', $query);
 			
-			return static::$query;
+			return $this->query;
 		}
 		
 		/**
@@ -472,7 +477,7 @@
 		 * @param  boolean $csrf
 		 * @return iterable|object
 		 */
-		private static function queryUpdate($data, $csrf=true)
+		private function queryUpdate($data, $csrf=true)
 		{
 			// 輸入只能是array型態
 			if (!is_array($data)) {
@@ -486,7 +491,7 @@
 			}
 
 			// 更新必須要有WHERE條件
-			if (empty(static::$where)) {
+			if (empty($this->where)) {
 				throw new Exception('更新必須要有WHERE條件');
 			}
 
@@ -498,8 +503,8 @@
 			}
 			$sql_cmd = substr($sql_cmd, 0, -1);
 
-			$db = self::connection();
-			$sql = 'UPDATE '.static::$table.' SET '.$sql_cmd.' WHERE '.static::$where;
+			$db = $this->connection();
+			$sql = 'UPDATE '.$this->table.' SET '.$sql_cmd.' WHERE '.$this->where;
 			$sth = $db->prepare($sql);
 			foreach ($data as $key => $value) 
 			{
@@ -514,17 +519,17 @@
 		 *
 		 * @return object
 		 */
-		private static function Reset() {
-			static::$select = array();
-			static::$table = '';
-			static::$where = '';
-			static::$limit = '';
-			static::$query = '';
-			static::$leftJoinTable = '';
-			static::$leftJoinCondition = '';
-			static::$joinTable  = array();
-			static::$joinCondition = array();
-			static::$orderBy = '';
+		private function Reset() {
+			$this->select = array();
+			$this->table = '';
+			$this->where = '';
+			$this->limit = '';
+			$this->query = '';
+			$this->leftJoinTable = '';
+			$this->leftJoinCondition = '';
+			$this->joinTable  = array();
+			$this->joinCondition = array();
+			$this->orderBy = '';
 		}
 
 		/**
@@ -532,9 +537,9 @@
 		 *
 		 * @return object
 		 */
-		public static function select() {
-			static::$select = func_get_args();
-			return new static;
+		public function select() {
+			$this->select = func_get_args();
+			return $this;
 		}
 
 		/**
@@ -543,10 +548,10 @@
 		 * @param  string $table
 		 * @return object
 		 */
-		public static function table($table)
+		public function table($table)
 		{
-			static::$table = $table;
-			return new static;
+			$this->table = $table;
+			return $this;
 		}
 
 		/**
@@ -555,13 +560,13 @@
 		 * @param  array $data
 		 * @return void
 		 */
-		public static function update($data, $csrf=true)
+		public function update($data, $csrf=true)
 		{
 			try{
-				return self::queryUpdate($data, $csrf);
+				return $this->queryUpdate($data, $csrf);
 			}
 			catch(Exception $e) {
-				if (Config::isDebug() === 'TRUE') {
+				if ($this->config->isDebug() === 'TRUE') {
 					throw $e;
 				}
 				else{
@@ -576,10 +581,10 @@
 		 * @param  string $where
 		 * @return object
 		 */
-		public static function where($where) 
+		public function where($where) 
 		{
-			static::$where = $where;
-			return new static;
+			$this->where = $where;
+			return $this;
 		}			
 	}
 ?>
