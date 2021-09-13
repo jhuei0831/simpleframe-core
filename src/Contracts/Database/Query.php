@@ -17,7 +17,7 @@
 		 *
 		 * @return boolean
 		 */
-        public function CreateOrUpdate($data, $csrf=true);
+        public function createOrUpdate($data, $csrf=true);
 
         /**
 		 * 使用指定資料庫
@@ -67,7 +67,7 @@
 		 * @param  boolean $csrf
 		 * @return iterable|object
 		 */
-        public function insert($data, $getInsertId = false, $csrf=true);
+        public function insert($data, $csrf=true);
 
         /**
 		 * Join 每次Query可以無限使用
@@ -76,7 +76,7 @@
 		 * @param  mixed $condition Join的條件
 		 * @return object
 		 */
-        public function Join($table, $condition);
+        public function join($table, $condition);
 
         /**
 		 * leftJoin 每次Query只能使用一次

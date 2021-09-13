@@ -4,6 +4,8 @@
 	use PDO;
 	use Exception;
 
+	use Kerwin\Core\Request;
+	use Kerwin\Core\Session;
 	use Kerwin\Core\Contracts\Database\Query;
 	use Kerwin\Core\Support\Config;
 	use Kerwin\Core\Support\Toolbox;
@@ -12,6 +14,8 @@
 	class Database implements Query
 	{
 		private $config;
+		private $session;
+		private $request;
 		private $database;
 		private $select;
 		private $table;
@@ -26,6 +30,8 @@
 
 		public function __construct() {
 			$this->config = new Config();
+			$this->session = new Session();
+			$this->request = Request::createFromGlobals();
 		}
 
 	    /**
@@ -36,11 +42,11 @@
 	    public function connection()
 		{
 			// 資料庫預設值
-			$host     = $_ENV['DB_HOST'];
-			$database = $this->database != null ? $this->database : $_ENV['DB_DATABASE'];
-			$account  = $_ENV['DB_USERNAME'];
-			$password = $_ENV['DB_PASSWORD'];
-			$charset  = $_ENV['DB_CHARSET'];
+			$host     = $this->request->server->get('DB_HOST');
+			$database = $this->database != null ? $this->database : $this->request->server->get('DB_DATABASE');
+			$account  = $this->request->server->get('DB_USERNAME');
+			$password = $this->request->server->get('DB_PASSWORD');
+			$charset  = $this->request->server->get('DB_CHARSET');
 
 			$dsn = "mysql:host={$host};dbname={$database}";
 			if($charset != "" && $charset != null){
@@ -88,7 +94,7 @@
 		 *
 		 * @return boolean
 		 */
-		public function CreateOrUpdate($data, $csrf=true)
+		public function createOrUpdate($data, $csrf=true)
 		{
 			try{
 				if (Toolbox::arrayDepth($data) > 1) {
@@ -99,7 +105,6 @@
 				else {
 					$this->queryReplace($data, $csrf);
 				}
-				unset($_SESSION["token"]);
 				return true;
 			}
 			catch(Exception $e) {
@@ -218,10 +223,10 @@
 		 * @param  boolean $csrf
 		 * @return iterable|object
 		 */
-		public function insert($data, $getInsertId = false, $csrf=true)
+		public function insert($data, $csrf=true)
 		{
 			try{
-				return $this->queryInsert($data, $getInsertId, $csrf);
+				return $this->queryInsert($data, $csrf);
 			}
 			catch(Exception $e) {
 				if ($this->config->isDebug() === 'TRUE') {
@@ -240,7 +245,7 @@
 		 * @param  mixed $condition Join的條件
 		 * @return object
 		 */
-		public function Join($table, $condition)
+		public function join($table, $condition)
 		{
 			$this->joinTable[] = func_get_args()[0];
 			$this->joinCondition[] = func_get_args()[1];
@@ -294,7 +299,7 @@
 		private function queryDelete()
 		{
 			if (empty($this->where)) {
-				throw new Exception('Delete比需要有WHERE條件');
+				throw new Exception('Delete必需要有WHERE條件');
 			}
 
 			$db = $this->connection();
@@ -311,7 +316,7 @@
 		 * @param  boolean $csrf
 		 * @return iterable|object
 		 */		
-		private function queryInsert($data, $getInsertId = false, $csrf=true)
+		private function queryInsert($data, $csrf=true)
 		{
 			// 輸入只能是array型態
 			if (!is_array($data)) {
@@ -321,7 +326,7 @@
 			// CSRF驗證
 			if ($csrf && Security::checkCSRF($data)) {
 				unset($data['token']);
-				unset($_SESSION["token"]);
+				$this->session->remove('token');
 			}
 
 			$column = '';
@@ -347,14 +352,8 @@
 				$attr = $key;
 				$sth->bindValue(':'.$attr, $value);	
 			}
-						
-			if ($getInsertId) {
-				$sth->execute();
-				return $db->lastInsertId();
-			}
-			else {
-				return $sth->execute();
-			}
+
+			return $sth->execute();
 		}
 
 		/**
@@ -374,7 +373,7 @@
 			// CSRF驗證
 			if ($csrf && Security::checkCSRF($data)) {
 				unset($data['token']);
-				unset($_SESSION["token"]);
+				$this->session->remove('token');
 			}
 
 			$column = '';
@@ -487,7 +486,7 @@
 			// CSRF驗證
 			if ($csrf && Security::checkCSRF($data)) {
 				unset($data['token']);
-				unset($_SESSION["token"]);
+				$this->session->remove('token');
 			}
 
 			// 更新必須要有WHERE條件
