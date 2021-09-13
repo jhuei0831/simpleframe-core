@@ -80,13 +80,12 @@
          * 跳出sweetalert2訊息框
          *
          * @param  string $msg
-         * @param  string $title
          * @param  string $type
          * @return void
          */
         public function showSwal($msg, $type = 'success')
         {
-            echo '<script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>';
+            echo '<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>';
             echo "<script>
                 window.onload = function(){
                     Swal.fire({
@@ -95,10 +94,14 @@
                         icon: '{$type}',
                         title: '{$msg}',
                         showConfirmButton: false,
-                        confirmButtonColor: 'LightSeaGreen',
-                        background: '#fcf8eb',
+                        showCloseButton: true,
+                        heightAuto: false,
+                        background: '#EBF7EE',
                         timer: 5000,
                         timerProgressBar: true,
+                        customClass: {
+                            popup: '{$type}'
+                        }
                     });
                 };
                 </script>";
