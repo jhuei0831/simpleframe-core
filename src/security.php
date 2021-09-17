@@ -2,12 +2,17 @@
     namespace Kerwin\Core;
 
     use Exception;
-    use Kerwin\Core\Support\Config;
+    use Kerwin\Core\Config;
     use Kerwin\Core\Contracts\Security\Filter;
     use Kerwin\Core\Contracts\Security\Verify;
 
     class Security implements Filter, Verify
-    {        
+    {                
+        /**
+         * Config instance
+         *
+         * @var Kerwin\Core\Config
+         */
         private $config;
 
         public function __construct() {
@@ -18,9 +23,9 @@
          * checkCSRF 防止跨站請求偽造 (Cross-site request forgery)
          *
          * @param  array $data
-         * @return boolean
+         * @return bool
          */
-        public function checkCSRF($data)
+        public function checkCSRF(array $data): bool
         {
             if (empty($data['token'])) {
                 if ($this->config->isDebug() === 'TRUE') {

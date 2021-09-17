@@ -15,9 +15,11 @@
         /**
 		 * 新增或更新資料庫資料
 		 *
-		 * @return boolean
+		 * @param  array $data
+		 * @param  bool $csrf
+		 * @return bool
 		 */
-        public function createOrUpdate($data, $csrf=true);
+        public function createOrUpdate(array $data, bool $csrf = true): bool;
 
         /**
 		 * 使用指定資料庫
@@ -25,7 +27,7 @@
 		 * @param  string $db
 		 * @return object
 		 */
-        public function database($db);
+		public function database(string $db): object;
                 
         /**
 		 * 刪除指定資料庫資料
@@ -38,36 +40,35 @@
 		 * 使用fetch找特定id資料
 		 *
 		 * @param  string $id
-		 * @param  boolean $filter 是否過濾
+		 * @param  bool   $filter 是否過濾
 		 * @return object
 		 */
-        public function find($id, $filter=true);
+		public function find(string $id, bool $filter = true): object;
 
         /**
 		 * 使用fetch找特定query資料
 		 *
-		 * @param  boolean $filter 是否過濾
+		 * @param  bool $filter 是否過濾
 		 * @return object
 		 */
-        public function first($filter=true);
+		public function first(bool $filter = true);
 
         /**
 		 * 使用fetchAll取得資料
 		 *
-		 * @param  boolean $filter 是否過濾
-		 * @return object
+		 * @param  bool $filter 是否過濾
+		 * @return array
 		 */
-        public function get($filter=true);
+		public function get(bool $filter = true): array;
 
         /**
 		 * 資料庫中插入一筆新的資料
 		 *
 		 * @param  array $data
-		 * @param  boolean $getInsertId
-		 * @param  boolean $csrf
+		 * @param  bool  $csrf
 		 * @return iterable|object
 		 */
-        public function insert($data, $csrf=true);
+		public function insert($data, bool $csrf = true);
 
         /**
 		 * Join 每次Query可以無限使用
@@ -90,26 +91,24 @@
         /**
 		 * 指定取出資料的筆數
 		 *
-		 * @param integer $limit 
-		 * @return void
+		 * @return object
 		 */
-        public function limit();
+		public function limit(): object;
 
         /**
 		 * 指定要排序的欄位
 		 *
-		 * @param  mixed $orderby
-		 * @param  mixed $type
+		 * @param  array $orderby
 		 * @return void
 		 */
-        public function orderby($orderby);
+		public function orderby(array $orderby): object;
 
         /**
 		 * 設定選擇的欄位
 		 *
 		 * @return object
 		 */
-        public function select();
+		public function select(): object;
 
         /**
 		 * 設定選擇的資料表
@@ -117,7 +116,7 @@
 		 * @param  string $table
 		 * @return object
 		 */
-		public function table($table);
+		public function table(string $table): object;
 
         /**
 		 * 更新指定資料庫資料
@@ -125,7 +124,7 @@
 		 * @param  array $data
 		 * @return void
 		 */
-		public function update($data, $csrf=true);
+		public function update(array $data, bool $csrf = true);
 
         /**
 		 * 設定對資料庫進行動作的條件(就是query的WHERE)
@@ -133,5 +132,5 @@
 		 * @param  string $where
 		 * @return object
 		 */
-		public function where($where);
+		public function where(string $where): object;
     }

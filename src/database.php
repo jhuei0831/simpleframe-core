@@ -4,30 +4,124 @@
 	use PDO;
 	use Exception;
 
+	use Kerwin\Core\Config;
 	use Kerwin\Core\Request;
 	use Kerwin\Core\Session;
 	use Kerwin\Core\Contracts\Database\Query;
-	use Kerwin\Core\Support\Config;
 	use Kerwin\Core\Support\Toolbox;
 	use Kerwin\Core\Support\Facades\Security;
 
 	class Database implements Query
-	{
+	{		
+		/**
+		 * Config instance
+		 *
+		 * @var Kerwin\Core\Config
+		 */
 		private $config;
-		private $session;
-		private $request;
+				
+		/**
+		 * 資料庫
+		 *
+		 * @var string
+		 */
 		private $database;
-		private $select;
-		private $table;
-		private $where;
-		private $limit;
-		private $query;
-		private $orderBy;
-		private $leftJoinTable;
-		private $leftJoinCondition;
+				
+		/**
+		 * 合併的資料表
+		 *
+		 * @var mixed
+		 */
 		private $joinTable;
+
+				
+		/**
+		 * 合併的資料表條件
+		 *
+		 * @var mixed
+		 */
 		private $joinCondition;
 
+				
+		/**
+		 * 左合併的資料表
+		 *
+		 * @var mixed
+		 */
+		private $leftJoinTable;
+
+				
+		/**
+		 * 左合併的資料表條件
+		 *
+		 * @var mixed
+		 */
+		private $leftJoinCondition;
+
+				
+		/**
+		 * 資料限制筆數
+		 *
+		 * @var mixed
+		 */
+		private $limit;
+
+				
+		/**
+		 * 資料排序
+		 *
+		 * @var mixed
+		 */
+		private $orderBy;
+
+				
+		/**
+		 * 資料庫查詢語言
+		 *
+		 * @var string
+		 */
+		private $query;
+
+				
+		/**
+		 * Request instance
+		 *
+		 * @var Kerwin\Core\Request
+		 */
+		private $request;
+
+				
+		/**
+		 * Session instance
+		 *
+		 * @var Kerwin\Core\Session
+		 */
+		private $session;
+
+				
+		/**
+		 * 資料選取欄位
+		 *
+		 * @var mixed
+		 */
+		private $select;
+
+				
+		/**
+		 * 資料表
+		 *
+		 * @var string
+		 */
+		private $table;
+
+		
+		/**
+		 * 資料選取條件
+		 *
+		 * @var mixed
+		 */
+		private $where;
+		
 		public function __construct() {
 			$this->config = new Config();
 			$this->session = new Session();
@@ -84,7 +178,7 @@
 		 * @param  string $db
 		 * @return int
 		 */
-		public function count()
+		public function count(): int
 		{
 			return count($this->getAll());
 		}
@@ -92,9 +186,11 @@
 		/**
 		 * 新增或更新資料庫資料
 		 *
-		 * @return boolean
+		 * @param  array $data
+		 * @param  bool $csrf
+		 * @return bool
 		 */
-		public function createOrUpdate($data, $csrf=true)
+		public function createOrUpdate(array $data, bool $csrf = true): bool
 		{
 			try{
 				if (Toolbox::arrayDepth($data) > 1) {
@@ -123,7 +219,7 @@
 		 * @param  string $db
 		 * @return object
 		 */
-		public function database($db)
+		public function database(string $db): object
 		{
 			$this->database = $db;
 			return $this;
@@ -132,7 +228,7 @@
 		/**
 		 * 刪除指定資料庫資料
 		 *
-		 * @return boolean
+		 * @return bool
 		 */
 		public function delete()
 		{
@@ -153,10 +249,10 @@
 		 * 使用fetch找特定id資料
 		 *
 		 * @param  string $id
-		 * @param  boolean $filter 是否過濾
+		 * @param  bool   $filter 是否過濾
 		 * @return object
 		 */
-		public function find($id, $filter=true)
+		public function find(string $id, bool $filter = true): object
 		{
 			return $this->where("id = '{$id}'")->getOne($filter);
 		}
@@ -164,10 +260,10 @@
 		/**
 		 * 使用fetch找特定query資料
 		 *
-		 * @param  boolean $filter 是否過濾
-		 * @return object
+		 * @param  bool $filter 是否過濾
+		 * @return string
 		 */
-		public function first($filter=true)
+		public function first(bool $filter = true)
 		{
 			return $this->getOne($filter);
 		}
@@ -175,10 +271,10 @@
 		/**
 		 * 使用fetchAll取得資料
 		 *
-		 * @param  boolean $filter 是否過濾
-		 * @return object
+		 * @param  bool $filter 是否過濾
+		 * @return array
 		 */
-		public function get($filter=true)
+		public function get(bool $filter = true): array
 		{
 			return $this->getAll($filter);
 		}
@@ -186,10 +282,10 @@
 		/**
 		 * PDO取全部的值
 		 *
-		 * @param  boolean $filter 是否過濾
-		 * @return object
+		 * @param  bool $filter 是否過濾
+		 * @return array
 		 */
-		private function getAll($filter=true)
+		private function getAll(bool $filter = true): array
 		{
 			$this->querySelect();
 			$db = $this->connection();
@@ -198,14 +294,39 @@
 			$this->Reset();
 			return !$filter ? $sth->fetchAll(PDO::FETCH_OBJ) : Security::defendFilter($sth->fetchAll(PDO::FETCH_OBJ));
 		}
+		
+		/**
+		 * 產生sql的欄位和值
+		 *
+		 * @param  array $data
+		 * @return array
+		 */
+		private function getColumnValues(array $data): array
+		{
+			$column = '';
+			$values = '';
+			
+			//表單欄位名稱→資料表欄位名稱，表單欄位資料→資料表欄位資料，去除最後的逗點
+			foreach ($data as $key => $value) 
+			{
+				$attr = $key;
+				$column .= $attr.',';
+				$values .= ':'.$attr.',';
+			}
+
+			$column = substr($column, 0, -1);
+			$values = substr($values, 0, -1);
+
+			return ['column' => $column, 'values' => $values];
+		}
 	
 		/**
 		 * PDO取單一筆的值
 		 *
-		 * @param  boolean $filter 是否過濾
+		 * @param  bool $filter 是否過濾
 		 * @return object
 		 */		
-		private function getOne($filter=true)
+		private function getOne(bool $filter = true)
 		{
 			$this->querySelect();
 			$db = $this->connection();
@@ -219,11 +340,10 @@
 		 * 資料庫中插入一筆新的資料
 		 *
 		 * @param  array $data
-		 * @param  boolean $getInsertId
-		 * @param  boolean $csrf
+		 * @param  bool  $csrf
 		 * @return iterable|object
 		 */
-		public function insert($data, $csrf=true)
+		public function insert($data, bool $csrf = true)
 		{
 			try{
 				return $this->queryInsert($data, $csrf);
@@ -245,7 +365,7 @@
 		 * @param  mixed $condition Join的條件
 		 * @return object
 		 */
-		public function join($table, $condition)
+		public function join($table, $condition): object
 		{
 			$this->joinTable[] = func_get_args()[0];
 			$this->joinCondition[] = func_get_args()[1];
@@ -259,7 +379,7 @@
 		 * @param  mixed $condition Join的條件
 		 * @return object
 		 */
-		public function leftJoin($table, $condition)
+		public function leftJoin($table, $condition): object
 		{
 			$this->leftJoinTable = $table;
 			$this->leftJoinCondition = $condition;
@@ -269,10 +389,10 @@
 		/**
 		 * 指定取出資料的筆數
 		 *
-		 * @param integer $limit 
-		 * @return void
+		 * @return object
 		 */
-		public function limit() {
+		public function limit(): object 
+		{
 			$this->limit = func_get_args();
 			return $this;
 		}
@@ -280,11 +400,10 @@
 		/**
 		 * 指定要排序的欄位
 		 *
-		 * @param  mixed $orderby
-		 * @param  mixed $type
+		 * @param  array $orderby
 		 * @return void
 		 */
-		public function orderby($orderby)
+		public function orderby(array $orderby): object
 		{
 			$this->orderBy = (array)$orderby;
 			return $this;
@@ -293,8 +412,7 @@
 		/**
 		 * 產生query並執行刪除的動作
 		 *
-		 * @param  mixed $data
-		 * @return iterable|object
+		 * @return iterable
 		 */
 		private function queryDelete()
 		{
@@ -312,40 +430,21 @@
 		 * 產生query並執行新增的動作
 		 *
 		 * @param  array $data
-		 * @param  boolean $getInsertId
-		 * @param  boolean $csrf
+		 * @param  bool $csrf
 		 * @return iterable|object
 		 */		
-		private function queryInsert($data, $csrf=true)
+		private function queryInsert(array $data, bool $csrf = true)
 		{
-			// 輸入只能是array型態
-			if (!is_array($data)) {
-				throw new Exception('Insert的參數必須是array');
-			}
-
 			// CSRF驗證
 			if ($csrf && Security::checkCSRF($data)) {
 				unset($data['token']);
 				$this->session->remove('token');
 			}
 
-			$column = '';
-			$values = '';
-			
-			//表單欄位名稱→資料表欄位名稱，表單欄位資料→資料表欄位資料，去除最後的逗點
-			foreach ($data as $key => $value) 
-			{
-				$attr = $key;
-				$column .= $attr.',';
-				$values .= ':'.$attr.',';
-			}
-
-			$column = substr($column, 0, -1);
-			$values = substr($values, 0, -1);
+			$insert = $this->getColumnValues($data);
 
 			$db = $this->connection();
-			$sql = 'INSERT INTO '.$this->table.' ('.$column.') VALUES ('.$values.')';
-
+			$sql = 'INSERT INTO '.$this->table.' ('.$insert['column'].') VALUES ('.$insert['values'].')';
 			$sth = $db->prepare($sql);
 			foreach ($data as $key => $value) 
 			{
@@ -363,35 +462,18 @@
 		 * @param  boolean $csrf
 		 * @return iterable|object
 		 */
-		private function queryReplace($data, $csrf=true)
+		private function queryReplace($data, bool $csrf = true)
 		{
-			// 輸入只能是array型態
-			if (!is_array($data)) {
-				throw new Exception('Replace的參數必須是array');
-			}
-
 			// CSRF驗證
 			if ($csrf && Security::checkCSRF($data)) {
 				unset($data['token']);
 				$this->session->remove('token');
 			}
 
-			$column = '';
-			$values = '';
-			
-			//表單欄位名稱→資料表欄位名稱，表單欄位資料→資料表欄位資料，去除最後的逗點
-			foreach ($data as $key => $value) 
-			{
-				$attr = $key;
-				$column .= $attr.',';
-				$values .= ':'.$attr.',';
-			}
-
-			$column = substr($column, 0, -1);
-			$values = substr($values, 0, -1);
+			$replace = $this->getColumnValues($data);
 
 			$db = $this->connection();
-			$sql = 'REPLACE INTO '.$this->table.' ('.$column.') VALUES ('.$values.')';
+			$sql = 'REPLACE INTO '.$this->table.' ('.$replace['column'].') VALUES ('.$replace['values'].')';
 			$sth = $db->prepare($sql);
 			foreach ($data as $key => $value) 
 			{
@@ -404,7 +486,7 @@
 		/**
 		 * 產生要搜尋的query
 		 *
-		 * @return object
+		 * @return iterable|object
 		 */
 		private function querySelect()
 		{
@@ -476,13 +558,8 @@
 		 * @param  boolean $csrf
 		 * @return iterable|object
 		 */
-		private function queryUpdate($data, $csrf=true)
+		private function queryUpdate(array $data, bool $csrf = true)
 		{
-			// 輸入只能是array型態
-			if (!is_array($data)) {
-				throw new Exception('Update的參數必須是array');
-			}
-
 			// CSRF驗證
 			if ($csrf && Security::checkCSRF($data)) {
 				unset($data['token']);
@@ -494,7 +571,8 @@
 				throw new Exception('更新必須要有WHERE條件');
 			}
 
-			$sql_cmd = ''; //表單欄位名稱→資料表欄位名稱，表單欄位資料→資料表欄位資料，去除最後的逗點
+			//表單欄位名稱→資料表欄位名稱，表單欄位資料→資料表欄位資料，去除最後的逗點
+			$sql_cmd = ''; 
 			foreach ($data as $key => $value) 
 			{
 				$attr = $key;
@@ -528,7 +606,7 @@
 			$this->leftJoinCondition = '';
 			$this->joinTable  = array();
 			$this->joinCondition = array();
-			$this->orderBy = '';
+			$this->orderBy = [];
 		}
 
 		/**
@@ -536,7 +614,8 @@
 		 *
 		 * @return object
 		 */
-		public function select() {
+		public function select(): object
+		{
 			$this->select = func_get_args();
 			return $this;
 		}
@@ -547,7 +626,7 @@
 		 * @param  string $table
 		 * @return object
 		 */
-		public function table($table)
+		public function table(string $table): object
 		{
 			$this->table = $table;
 			return $this;
@@ -559,7 +638,7 @@
 		 * @param  array $data
 		 * @return void
 		 */
-		public function update($data, $csrf=true)
+		public function update(array $data, bool $csrf = true)
 		{
 			try{
 				return $this->queryUpdate($data, $csrf);
@@ -580,7 +659,7 @@
 		 * @param  string $where
 		 * @return object
 		 */
-		public function where($where) 
+		public function where(string $where): object
 		{
 			$this->where = $where;
 			return $this;

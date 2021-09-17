@@ -10,8 +10,25 @@
     
     class Role implements roleGuard
     {        
+        /**
+         * Database instance
+         *
+         * @var Kerwin\Core\Database
+         */
         private $database;
+        
+        /**
+         * Request instance
+         *
+         * @var Kerwin\Core\Request
+         */
         private $request;
+
+        /**
+         * Session instance
+         *
+         * @var Kerwin\Core\Session
+         */
         private $session;
 
         public function __construct() {
@@ -23,10 +40,10 @@
         /**
          * 建立角色
          *
-         * @param  mixed $data
+         * @param  array $data
          * @return void
          */
-        public function create($data)
+        public function create(array $data)
         {
             $data = (array) $data;
             return $this->database->table('roles')->insert($data);
@@ -38,7 +55,7 @@
          * @param  string $role
          * @return string
          */
-        private function getRoleID($role)
+        private function getRoleID(string $role)
         {
             $role = $this->database->table('roles')->select('id')->where("name ='{$role}'")->first();
 
@@ -52,7 +69,7 @@
          * @param  string $role
          * @return bool
          */
-        public function has($role)
+        public function has(string $role): bool
         {
             $roleId = $this->getRoleID($role);
             if ($roleId === false) {

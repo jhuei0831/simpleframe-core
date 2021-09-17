@@ -5,10 +5,10 @@
     interface Permission 
     {
         /**
-        * 使用者是否符合角色身分
-        *
-        * @param string $role
-        * @return bool
-        */
-        public function can($permission);
+         * 是否有這個權限
+         *
+         * @param  string $permission
+         * @return bool
+         */
+        public function can(string $permission): bool;
     }

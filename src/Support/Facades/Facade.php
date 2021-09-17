@@ -12,7 +12,7 @@
             $instance = static::getClass();
 
             if (!$instance) {
-                throw new RuntimeException('A facade root has not been set.');
+                throw new RuntimeException('尚未設定facade');
             }
 
             return $instance->$method(...$args);

@@ -7,9 +7,26 @@
     use Kerwin\Core\Contracts\Auth\Permission as permissionGuard;
 
     class Permission implements permissionGuard
-    {        
+    {                
+        /**
+         * Database instance
+         *
+         * @var Kerwin\Core\Database
+         */
         private $database;
+        
+        /**
+         * Request instance
+         *
+         * @var Kerwin\Core\Request
+         */
         private $request;
+
+        /**
+         * Session instance
+         *
+         * @var Kerwin\Core\Session
+         */
         private $session;
 
         public function __construct() {
@@ -21,10 +38,10 @@
         /**
          * 建立權限
          *
-         * @param  string|array $data
+         * @param  array $data
          * @return void
          */
-        public function create($data)
+        public function create(array $data)
         {
             $data = (array) $data;
             return $this->database->table('permissions')->insert($data);
@@ -36,7 +53,7 @@
          * @param  string $permissionName
          * @return array
          */
-        private function permissionBelongRoles($permissionName)
+        private function permissionBelongRoles(string $permissionName): array
         {
             $roles = $this->database->table('roles')
                 ->select('roles.id', 'roles.name')
@@ -54,7 +71,7 @@
          * @param  string $permission
          * @return bool
          */
-        public function can($permission)
+        public function can(string $permission): bool
         {
             $roles = $this->permissionBelongRoles($permission);
             if (empty($roles) || empty($this->session->get('USER_ID'))) {

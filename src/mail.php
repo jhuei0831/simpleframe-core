@@ -5,7 +5,16 @@
     use PHPMailer\PHPMailer\Exception;
 
     class Mail
-    {
+    {        
+        /**
+         * 發送信件
+         *
+         * @param  string $subject
+         * @param  string $message
+         * @param  string $email
+         * @param  string $name
+         * @return void
+         */
         public static function send($subject, $message, $email, $name)
         {
             try {
