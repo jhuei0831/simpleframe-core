@@ -4,8 +4,22 @@
 
     use Ramsey\Uuid\Uuid;
 
-    class Toolbox {
-        
+    class Toolbox 
+    {
+                
+        /**
+         * 將二進制轉成UUID4
+         *
+         * @param string $binary
+         * @return void
+         */
+        public static function binaryToUuid(string $binary): string
+        {
+            $uuid = unpack("h*", $binary);
+            $uuid = preg_replace("/([0-9a-f]{8})([0-9a-f]{4})([0-9a-f]{4})([0-9a-f]{4})([0-9a-f]{12})/", "$1-$2-$3-$4-$5", $uuid);
+            return $uuid[1];
+        }
+
         /**
          * breadcrumb 路徑
          *
@@ -63,6 +77,20 @@
             }
             return $maxDepth;
         }
+
+        /**
+         * 執行forgot函式
+         *
+         * @param  array $array
+         * @param  array|string $keys
+         * @return array
+         */
+        public static function except($array, $keys)
+        {
+            static::forget($array, $keys);
+
+            return $array;
+        }
                 
         /**
          * 移除陣列中不要的鍵值
@@ -85,19 +113,21 @@
                 }
             }
         }
-        
-        /**
-         * 執行forgot函式
-         *
-         * @param  array $array
-         * @param  array|string $keys
-         * @return array
-         */
-        public static function except($array, $keys)
-        {
-            static::forget($array, $keys);
 
-            return $array;
+        /**
+         * 亂數產生變數
+         *
+         * @param  int $length
+         * @return string
+         */
+        public static function generateRandomString($length = 10) {
+            $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+            $charactersLength = strlen($characters);
+            $randomString = '';
+            for ($i = 0; $i < $length; $i++) {
+                $randomString .= $characters[rand(0, $charactersLength - 1)];
+            }
+            return $randomString;
         }
         
         /**
@@ -121,4 +151,16 @@
 		public static function UUIDv4() {
 		    return Uuid::uuid4();
 		}
+        
+        /**
+         * 將UUID轉成二進制
+         *
+         * @param string $uuid
+         * @return string
+         */
+        public static function uuidToBinary(string $uuid): string
+        {
+            $binary = pack("h*", str_replace('-', '', $uuid));
+            return $binary;
+        }
     }

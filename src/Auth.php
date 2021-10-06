@@ -52,10 +52,10 @@
          *
          * @return object
          */
-         public function user()
-         {
+        public function user()
+        {
             $user = $this->database->table($this->request->server->get('AUTH_TABLE'))->select('id', 'name', 'email', 'auth_code', 'email_varified_at', 'role', 'updated_at')->where("id = '{$this->session->get('USER_ID')}'")->first();
             return isset($user) ? $user : false;
-         }   
+        }   
     }
     
