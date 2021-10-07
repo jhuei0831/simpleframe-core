@@ -104,10 +104,8 @@
                         showCloseButton: true,
                         heightAuto: false,
                         background: '#EBF7EE',
-                        timer: 5000,
-                        timerProgressBar: true,
                         customClass: {
-                            popup: '{$type}'
+                            popup: 'alert-{$type}'
                         }
                     });
                 };
