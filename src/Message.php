@@ -104,6 +104,7 @@
                         showCloseButton: true,
                         heightAuto: false,
                         background: '#EBF7EE',
+                        timer: 5000,
                         customClass: {
                             popup: 'alert-{$type}'
                         }
