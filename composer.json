@@ -15,12 +15,9 @@
     ],
     "minimum-stability": "dev",
     "require": {
-        "vlucas/phpdotenv": "^5.3",
         "phpmailer/phpmailer": "^6.4",
         "ramsey/uuid": "^4.1",
-        "symfony/http-foundation": "^5.3",
-        "monolog/monolog": "^2.3",
-        "jenssegers/agent": "^2.6"
+        "symfony/http-foundation": "^5.3"
     },
     "repositories": [
         { 
