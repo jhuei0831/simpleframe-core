@@ -26,6 +26,13 @@
 		 * @var string
 		 */
 		private $database;
+		
+		/**
+		 * 資料分組
+		 *
+		 * @var mixed
+		 */
+		private $groupBy;
 				
 		/**
 		 * 合併的資料表
@@ -33,7 +40,6 @@
 		 * @var mixed
 		 */
 		private $joinTable;
-
 				
 		/**
 		 * 合併的資料表條件
@@ -41,7 +47,6 @@
 		 * @var mixed
 		 */
 		private $joinCondition;
-
 				
 		/**
 		 * 左合併的資料表
@@ -50,14 +55,12 @@
 		 */
 		private $leftJoinTable;
 
-				
 		/**
 		 * 左合併的資料表條件
 		 *
 		 * @var mixed
 		 */
 		private $leftJoinCondition;
-
 				
 		/**
 		 * 資料限制筆數
@@ -66,14 +69,12 @@
 		 */
 		private $limit;
 
-				
 		/**
 		 * 資料排序
 		 *
 		 * @var mixed
 		 */
 		private $orderBy;
-
 				
 		/**
 		 * 資料庫查詢語言
@@ -81,7 +82,6 @@
 		 * @var string
 		 */
 		private $query;
-
 				
 		/**
 		 * Request instance
@@ -90,14 +90,12 @@
 		 */
 		private $request;
 
-				
 		/**
 		 * Session instance
 		 *
 		 * @var Kerwin\Core\Session
 		 */
 		private $session;
-
 				
 		/**
 		 * 資料選取欄位
@@ -105,7 +103,6 @@
 		 * @var mixed
 		 */
 		private $select;
-
 				
 		/**
 		 * 資料表
@@ -113,7 +110,6 @@
 		 * @var string
 		 */
 		private $table;
-
 		
 		/**
 		 * 資料選取條件
@@ -263,7 +259,7 @@
 		 * @param  bool $filter 是否過濾
 		 * @return string
 		 */
-		public function first(bool $filter = true)
+		public function first(bool $filter = true): object
 		{
 			return $this->getOne($filter);
 		}
@@ -326,7 +322,7 @@
 		 * @param  bool $filter 是否過濾
 		 * @return object
 		 */		
-		private function getOne(bool $filter = true)
+		private function getOne(bool $filter = true): object
 		{
 			$this->querySelect();
 			$db = $this->connection();
@@ -334,6 +330,17 @@
 			$sth->execute();
 			$this->Reset();
 			return !$filter ? $sth->fetch(PDO::FETCH_OBJ) : Security::defendFilter($sth->fetch(PDO::FETCH_OBJ));
+		}
+		
+		/**
+		 * 取得合併資料欄位
+		 *
+		 * @return object
+		 */
+		public function groupBy(): object
+		{
+			$this->groupBy = func_get_args();
+			return $this;
 		}
 
 		/**
@@ -367,8 +374,8 @@
 		 */
 		public function join($table, $condition): object
 		{
-			$this->joinTable[] = func_get_args()[0];
-			$this->joinCondition[] = func_get_args()[1];
+			$this->joinTable[] = $table;
+			$this->joinCondition[] = $condition;
 			return $this;
 		}
 		
@@ -401,7 +408,7 @@
 		 * 指定要排序的欄位
 		 *
 		 * @param  array $orderby
-		 * @return void
+		 * @return object
 		 */
 		public function orderby(array $orderby): object
 		{
@@ -526,6 +533,12 @@
 				$query[] = $this->where;
 			}
 
+			// 處理Group By分組
+			if (!empty($this->groupBy)) {
+				$query[] = "GROUP BY";
+				$query[] = join(', ', $this->groupBy);
+			}
+
 			// 處理Order By排序
 			if (!empty($this->orderBy)) {
 				$query[] = "ORDER BY";
@@ -606,6 +619,7 @@
 			$this->leftJoinCondition = '';
 			$this->joinTable  = array();
 			$this->joinCondition = array();
+			$this->groupBy = [];
 			$this->orderBy = [];
 		}
 

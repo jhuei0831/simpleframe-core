@@ -51,7 +51,7 @@
 		 * @param  bool $filter 是否過濾
 		 * @return object
 		 */
-		public function first(bool $filter = true);
+		public function first(bool $filter = true): object;
 
         /**
 		 * 使用fetchAll取得資料
@@ -60,6 +60,13 @@
 		 * @return array
 		 */
 		public function get(bool $filter = true): array;
+
+		/**
+		 * 取得合併資料欄位
+		 *
+		 * @return object
+		 */
+		public function groupBy(): object;
 
         /**
 		 * 資料庫中插入一筆新的資料
