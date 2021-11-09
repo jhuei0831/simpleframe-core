@@ -257,9 +257,9 @@
 		 * 使用fetch找特定query資料
 		 *
 		 * @param  bool $filter 是否過濾
-		 * @return string
+		 * @return object|string
 		 */
-		public function first(bool $filter = true): object
+		public function first(bool $filter = true)
 		{
 			return $this->getOne($filter);
 		}
@@ -320,9 +320,9 @@
 		 * PDO取單一筆的值
 		 *
 		 * @param  bool $filter 是否過濾
-		 * @return object
+		 * @return object|string
 		 */		
-		private function getOne(bool $filter = true): object
+		private function getOne(bool $filter = true)
 		{
 			$this->querySelect();
 			$db = $this->connection();

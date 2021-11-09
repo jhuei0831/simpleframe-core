@@ -51,7 +51,7 @@
 		 * @param  bool $filter 是否過濾
 		 * @return object
 		 */
-		public function first(bool $filter = true): object;
+		public function first(bool $filter = true);
 
         /**
 		 * 使用fetchAll取得資料
