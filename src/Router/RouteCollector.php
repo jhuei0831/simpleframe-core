@@ -18,6 +18,8 @@ class RouteCollector
 
     protected $middleware = [];
 
+    protected $groupMiddleware = [];
+
     /**
      * Constructs a route collector.
      *
@@ -42,6 +44,9 @@ class RouteCollector
      */
     public function addRoute($httpMethod, $route, $handler)
     {
+        $middleware = array_merge($this->middleware, $this->groupMiddleware);
+        dump($this->currentGroupPrefix.$route);
+        dump(array_unique($middleware));
         $route = $this->currentGroupPrefix . $route;
         $routeDatas = $this->routeParser->parse($route);
         foreach ((array) $httpMethod as $method) {
@@ -55,7 +60,7 @@ class RouteCollector
     public function middleware($middleware)
     {
         $middleware = (array) $middleware;
-        foreach ($middleware as $key => $value) {
+        foreach ($middleware as $value) {
             $this->middleware[] = $value;
         }
         return $this;
@@ -71,6 +76,12 @@ class RouteCollector
      */
     public function addGroup($prefix, callable $callback)
     {
+        if (count($this->middleware) > 0) {
+            foreach ($this->middleware as $middleware) {
+                $this->groupMiddleware[] = $middleware;
+            }
+            $this->middleware = [];
+        }
         $previousGroupPrefix = $this->currentGroupPrefix;
         $this->currentGroupPrefix = $previousGroupPrefix . $prefix;
         $callback($this);
