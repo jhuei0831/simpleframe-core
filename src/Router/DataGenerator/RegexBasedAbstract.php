@@ -2,8 +2,8 @@
 
 namespace Kerwin\Core\Router\DataGenerator;
 
-use FastRoute\Route;
 use FastRoute\BadRouteException;
+use Kerwin\Core\Router\Route;
 use Kerwin\Core\Router\DataGenerator\DataGeneratorInterface;
 
 abstract class RegexBasedAbstract implements DataGeneratorInterface
@@ -29,7 +29,7 @@ abstract class RegexBasedAbstract implements DataGeneratorInterface
         if ($this->isStaticRoute($routeData)) {
             $this->addStaticRoute($httpMethod, $routeData, $handler, $middleware);
         } else {
-            $this->addVariableRoute($httpMethod, $routeData, $handler);
+            $this->addVariableRoute($httpMethod, $routeData, $handler, $middleware);
         }
     }
 
@@ -102,10 +102,9 @@ abstract class RegexBasedAbstract implements DataGeneratorInterface
 
         $this->staticRoutes[$httpMethod][$routeStr] = $handler;
         $this->staticRoutes[$httpMethod]['middleware'][$routeStr] = $middleware;
-        // dump($this->staticRoutes);
     }
 
-    private function addVariableRoute($httpMethod, $routeData, $handler)
+    private function addVariableRoute($httpMethod, $routeData, $handler, $middleware)
     {
         list($regex, $variables) = $this->buildRegexForRoute($routeData);
 
@@ -117,7 +116,7 @@ abstract class RegexBasedAbstract implements DataGeneratorInterface
         }
 
         $this->methodToRegexToRoutesMap[$httpMethod][$regex] = new Route(
-            $httpMethod, $handler, $regex, $variables
+            $httpMethod, $handler, $regex, $variables, $middleware
         );
     }
 

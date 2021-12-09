@@ -5,7 +5,7 @@ namespace Kerwin\Core\Router\Dispatcher;
 use Twig\Environment;
 use FastRoute\Dispatcher;
 use Kerwin\Core\Router\Middleware\MiddlewareStack;
-use Kerwin\Core\Router\Middleware\MiddlewareRunner;
+use Kerwin\Core\Router\Middleware\MiddlewareDriver;
 
 abstract class RegexBasedAbstract implements Dispatcher
 {
@@ -48,16 +48,14 @@ abstract class RegexBasedAbstract implements Dispatcher
                 $response = function() use ($container, $controller, $parameters) {
                     $container->call($controller, $parameters);
                 };
-                $middleware = new MiddlewareRunner(new MiddlewareStack($response));
+                // resolve middleware
+                $middleware = new MiddlewareDriver(new MiddlewareStack($response));
                 if (is_array($route[3])) {
-                    foreach ($route[3] as $value) {
-                        $middleware->add($value);
+                    foreach ($route[3] as $routeMiddleware) {
+                        $middleware->add($container->get($routeMiddleware));
                     }
                 }
                 $middleware->run();
-                // We could do $container->get($controller) but $container->call()
-                // does that automatically
-                // $container->call($controller, $parameters);
                 break;
         }
     }
@@ -82,6 +80,7 @@ abstract class RegexBasedAbstract implements Dispatcher
         if ($httpMethod === 'HEAD') {
             if (isset($this->staticRouteMap['GET'][$uri])) {
                 $handler = $this->staticRouteMap['GET'][$uri];
+                $middleware = $this->staticRouteMap[$httpMethod]['middleware'][$uri];
                 return [self::FOUND, $handler, []];
             }
             if (isset($varRouteData['GET'])) {
@@ -95,6 +94,7 @@ abstract class RegexBasedAbstract implements Dispatcher
         // If nothing else matches, try fallback routes
         if (isset($this->staticRouteMap['*'][$uri])) {
             $handler = $this->staticRouteMap['*'][$uri];
+            $middleware = $this->staticRouteMap['*']['middleware'][$uri];
             return [self::FOUND, $handler, []];
         }
         if (isset($varRouteData['*'])) {

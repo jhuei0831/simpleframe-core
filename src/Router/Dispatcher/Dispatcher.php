@@ -23,7 +23,8 @@ class Dispatcher extends RegexBasedAbstract
             foreach ($varNames as $varName) {
                 $vars[$varName] = $matches[++$i];
             }
-            return [self::FOUND, $handler, $vars];
+            $middleware = $data['middleware'];
+            return [self::FOUND, $handler, $vars, $middleware];
         }
 
         return [self::NOT_FOUND];

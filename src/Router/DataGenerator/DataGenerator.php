@@ -13,6 +13,7 @@ class DataGenerator extends RegexBasedAbstract
     {
         $routeMap = [];
         $regexes = [];
+        $middlewares = [];
         $numGroups = 0;
         foreach ($regexToRoutesMap as $regex => $route) {
             $numVariables = count($route->variables);
@@ -20,11 +21,11 @@ class DataGenerator extends RegexBasedAbstract
 
             $regexes[] = $regex . str_repeat('()', $numGroups - $numVariables);
             $routeMap[$numGroups + 1] = [$route->handler, $route->variables];
-
+            $middlewares = $route->middlewares;
             ++$numGroups;
         }
 
         $regex = '~^(?|' . implode('|', $regexes) . ')$~';
-        return ['regex' => $regex, 'routeMap' => $routeMap];
+        return ['regex' => $regex, 'routeMap' => $routeMap, 'middleware' => $middlewares];
     }
 }

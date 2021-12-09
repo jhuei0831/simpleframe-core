@@ -16,9 +16,11 @@ class RouteCollector
     /** @var string */
     protected $currentGroupPrefix;
 
-    protected $middleware = [];
+    /** @var array */
+    protected $middlewareGroup = [];
 
-    protected $groupMiddleware = [];
+    /** @var array */
+    protected $middleware = [];
 
     /**
      * Constructs a route collector.
@@ -44,24 +46,27 @@ class RouteCollector
      */
     public function addRoute($httpMethod, $route, $handler)
     {
-        $middleware = array_merge($this->middleware, $this->groupMiddleware);
-        dump($this->currentGroupPrefix.$route);
-        dump(array_unique($middleware));
+        $middleware = array_unique(array_merge($this->middleware, $this->middlewareGroup));
         $route = $this->currentGroupPrefix . $route;
         $routeDatas = $this->routeParser->parse($route);
         foreach ((array) $httpMethod as $method) {
             foreach ($routeDatas as $routeData) {
-                $this->dataGenerator->addRoute($method, $routeData, $handler, $this->middleware);
+                $this->dataGenerator->addRoute($method, $routeData, $handler, $middleware);
             }
         }
         $this->middleware = [];
     }
-
-    public function middleware($middleware)
+    
+    /**
+     * Add middlewares to route
+     *
+     * @param  array $middlewares
+     * @return object
+     */
+    public function middleware(array $middlewares)
     {
-        $middleware = (array) $middleware;
-        foreach ($middleware as $value) {
-            $this->middleware[] = $value;
+        foreach ($middlewares as $middleware) {
+            $this->middleware[] = $middleware;
         }
         return $this;
     }
@@ -76,12 +81,11 @@ class RouteCollector
      */
     public function addGroup($prefix, callable $callback)
     {
+        // add middleware to group
         if (count($this->middleware) > 0) {
-            foreach ($this->middleware as $middleware) {
-                $this->groupMiddleware[] = $middleware;
-            }
-            $this->middleware = [];
+            $this->middlewareGroup += $this->middleware;
         }
+
         $previousGroupPrefix = $this->currentGroupPrefix;
         $this->currentGroupPrefix = $previousGroupPrefix . $prefix;
         $callback($this);
