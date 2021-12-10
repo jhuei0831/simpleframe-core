@@ -52,7 +52,13 @@ abstract class RegexBasedAbstract implements Dispatcher
                 $middleware = new MiddlewareDriver(new MiddlewareStack($response));
                 if (is_array($route[3])) {
                     foreach ($route[3] as $routeMiddleware) {
-                        $middleware->add($container->get($routeMiddleware));
+                        if (strpos($routeMiddleware, ':')) {
+                            $arg = explode(':', $routeMiddleware);
+                            $middleware->add($container->call($arg[0], ['arg' => $arg[1]]));
+                        }
+                        else {
+                            $middleware->add($container->get($routeMiddleware));
+                        }
                     }
                 }
                 $middleware->run();
