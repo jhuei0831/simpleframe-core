@@ -16,14 +16,12 @@ class Dispatcher extends RegexBasedAbstract
                 continue;
             }
 
-            list($handler, $varNames) = $data['routeMap'][count($matches)];
-
+            list($handler, $varNames, $middleware) = $data['routeMap'][count($matches)];
             $vars = [];
             $i = 0;
             foreach ($varNames as $varName) {
                 $vars[$varName] = $matches[++$i];
             }
-            $middleware = $data['middleware'];
             return [self::FOUND, $handler, $vars, $middleware];
         }
 
