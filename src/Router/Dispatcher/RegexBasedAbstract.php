@@ -54,7 +54,7 @@ abstract class RegexBasedAbstract implements Dispatcher
                     foreach ($route[3] as $routeMiddleware) {
                         if (strpos($routeMiddleware, ':')) {
                             $arg = explode(':', $routeMiddleware);
-                            $middleware->add($container->call($arg[0], ['arg' => $arg[1]]));
+                            $middleware->add($container->get($arg[0]), $arg[1]);
                         }
                         else {
                             $middleware->add($container->get($routeMiddleware));

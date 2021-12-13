@@ -2,6 +2,7 @@
 
 namespace Kerwin\Core\Router\Middleware;
 
+use Closure;
 use Kerwin\Core\Request;
 
 interface Middleware
@@ -11,7 +12,8 @@ interface Middleware
      *
      * @param  Kerwin\Core\Request $request
      * @param  callable $next
+     * @param  mixed $arg
      * @return callable
      */
-    public function __invoke(Request $request, callable $next);
+    public function __invoke(Request $request, Closure $next, $arg = NULL);
 }

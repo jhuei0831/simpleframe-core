@@ -16,12 +16,13 @@ class MiddlewareDriver
 	/**
 	 * 已堆疊方式新增middleware
 	 *
-	 * @param  Kerwin\Core\Router\Middleware\Middleware $middleware
+	 * @param  Middleware $middleware
+	 * @param  mixed $arg
 	 * @return void
 	 */
-	public function add(Middleware $middleware)
+	public function add(Middleware $middleware, $arg = NULL)
 	{
-		$this->middleware->add($middleware);
+        $this->middleware->add($middleware, $arg);
 	}
 	
 	/**

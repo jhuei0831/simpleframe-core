@@ -16,15 +16,16 @@ class MiddlewareStack
     /**
      * 堆疊新增middleware
      *
-     * @param  mixed $middleware
+     * @param  Kerwin\Core\Router\Middleware\Middleware $middleware
+     * @param  mixed $arg
      * @return callable
      */
-    public function add(Middleware $middleware)
+    public function add(Middleware $middleware, $arg = NULL)
     {
         $next = $this->start;
         $request = Request::createFromGlobals();
-        $this->start = function() use ($middleware, $request, $next) {
-            return $middleware($request, $next);
+        $this->start = function() use ($middleware, $request, $next, $arg) {
+            return $middleware($request, $next, $arg);
         };
     }
     
