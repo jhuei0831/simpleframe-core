@@ -26,8 +26,7 @@
          */
         public function flash(string $msg, string $type): object
         {
-            $this->session->set('flash_message', $msg);
-            $this->session->set('flash_message_type', $type);
+            $this->session->getFlashBag()->add($type, $msg);
             
             return $this;
         }
@@ -63,10 +62,10 @@
          */
         public function showFlash(): void
         {
-            if ($this->session->has('flash_message') && $this->session->get('flash_message') != '') {
-                $this->showSwal($this->session->get('flash_message'), $this->session->get('flash_message_type'));
-                $this->session->remove('flash_message');
-                $this->session->remove('flash_message_type');
+            foreach ($this->session->getFlashBag()->all() as $type => $messages) {
+                foreach ($messages as $message) {
+                    $this->showSwal($message, $type);
+                }
             }
         }
      
